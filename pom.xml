@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.miage</groupId>
-    <artifactId>projet-api</artifactId>
+    <artifactId>projet-api-taches</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>projet-api</name>
+    <name>projet-api-taches</name>
     <description>M2 ACSI - Projet API</description>
 
     <parent>
