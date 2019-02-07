@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.miage.m2</groupId>
-	<artifactId>eureka-service</artifactId>
+	<artifactId>projet-api-eureka</artifactId>
 	<version>1.0</version>
 	<packaging>jar</packaging>
 
 	<name>eureka-service</name>
-	<description>Demo project for Spring Boot</description>
+	<description></description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
