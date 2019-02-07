@@ -1,6 +1,5 @@
-INSERT INTO tache(id,nomtache,nomresponsable,participants,datecreation,dateecheance,etat) VALUES ('1','TacheA','ResponsableA','ParticipantA','creationA','echeanceA','etatA')
-INSERT INTO tache(id,nomtache,nomresponsable,participants,datecreation,dateecheance,etat) VALUES ('2','TacheB','ResponsableB','ParticipantB','creationB','echeanceB','etatB')
-INSERT INTO tache(id,nomtache,nomresponsable,participants,datecreation,dateecheance,etat) VALUES ('3','TacheC','ResponsableC','ParticipantC','creationC','echeanceC','etatC')
-
+INSERT INTO participant(id,nom,prenom) VALUES ('1','nomA','prenomA')
+INSERT INTO participant(id,nom,prenom) VALUES ('2','nomB','prenomB')
+INSERT INTO participant(id,nom,prenom) VALUES ('3','nomC','prenomC')
 
 

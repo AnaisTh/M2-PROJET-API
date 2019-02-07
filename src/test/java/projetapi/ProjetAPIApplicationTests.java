@@ -21,8 +21,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 
-import projetapi.tache.Tache;
-import projetapi.tache.TacheRessource;
+import projetapi.participant.Participant;
+import projetapi.participant.ParticipantRessource;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -35,61 +35,57 @@ public class ProjetAPIApplicationTests {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private TacheRessource tr;
+    private ParticipantRessource pr;
     
     @Before
     public void setupContext() {
-    	tr.deleteAll();
+    	pr.deleteAll();
     }
     
    @Test
-   public void getOneTache() {
-	   Tache tache = new Tache("TacheA","MonsieurX", "ParticipantY", "dateCreationXXX","dateEcheanceYYY","etatAAA");
-	   tache.setId(UUID.randomUUID().toString());
-       tr.save(tache);
-       ResponseEntity<String> response = restTemplate.getForEntity("/taches/" + tache.getId(), String.class);
+   public void getOneparticipant() {
+	   Participant participant = new Participant("nomA","prenomA");
+	   participant.setId(UUID.randomUUID().toString());
+       pr.save(participant);
+       ResponseEntity<String> response = restTemplate.getForEntity("/participants/" + participant.getId(), String.class);
        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-       assertThat(response.getBody()).contains("TacheA");
-       assertThat(response.getBody().contains("ParticipantY"));
+       assertThat(response.getBody()).contains("nomA");
+       assertThat(response.getBody().contains("prenomA"));
    }
    
    @Test
-   public void getAllTaches() {
-	   Tache tacheA = new Tache("TacheA","MonsieurA", "ParticipantA", "dateCreationA","dateEcheanceA","etatA");
-	   tacheA.setId(UUID.randomUUID().toString());
-	   tr.save(tacheA);
+   public void getAllparticipants() {
+	   Participant participant = new Participant("nomA","prenomA");
+	   participant.setId(UUID.randomUUID().toString());
+       pr.save(participant);
 	   
-	   Tache tacheB = new Tache("TacheB","MonsieurB", "ParticipantB", "dateCreationB","dateEcheanceB","etatB");
-	   tacheB.setId(UUID.randomUUID().toString());
-	   tr.save(tacheB);
+       Participant participant2 = new Participant("nomB","prenomB");
+       participant2.setId(UUID.randomUUID().toString());
+       pr.save(participant2);
 	   
-	          ResponseEntity<String> response
-               = restTemplate.getForEntity("/taches", String.class);
+       ResponseEntity<String> response = restTemplate.getForEntity("/participants", String.class);
 
        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-       assertThat(response.getBody()).contains("TacheA");
-       assertThat(response.getBody()).contains("TacheB");
-       assertThat(response.getBody()).contains("ParticipantA");
+       assertThat(response.getBody()).contains("prenomA");
+       assertThat(response.getBody()).contains("nomB");
        
-       List<String> liste = JsonPath.read(response.getBody(),
-               "$..taches..nomtache");
+       List<String> liste = JsonPath.read(response.getBody(),"$..participants..nom");
+       System.out.println(response.getBody());
        assertThat(liste).asList().hasSize(2);
-       
-       List<String> liste2 = JsonPath.read(response.getBody(),
-               "$..taches..participants");
-       assertThat(liste2).asList().hasSize(2);
+      
        
    }
    
    
    @Test
    public void postAPI() throws Exception {
-	   Tache tache = new Tache("TacheA","MonsieurX", "ParticipantY", "dateCreationXXX","dateEcheanceYYY","etatAAA");
-       HttpHeaders headers = new HttpHeaders();
+	   Participant participant = new Participant("nomA","prenomA");
+	   
+	   HttpHeaders headers = new HttpHeaders();
        headers.setContentType(MediaType.APPLICATION_JSON);
-       HttpEntity<String> entity = new HttpEntity<>(this.toJsonString(tache), headers);
+       HttpEntity<String> entity = new HttpEntity<>(this.toJsonString(participant), headers);
        ResponseEntity<?> response
-               = restTemplate.postForEntity("/taches", entity, ResponseEntity.class);
+               = restTemplate.postForEntity("/participants", entity, ResponseEntity.class);
        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
        URI location = response.getHeaders().getLocation();
@@ -100,45 +96,41 @@ public class ProjetAPIApplicationTests {
      
    @Test
    public void putAPI() throws Exception {
-	   Tache tache = new Tache("TacheA","MonsieurX", "ParticipantY", "dateCreationXXX","dateEcheanceYYY","etatAAA");
-       tache.setId(UUID.randomUUID().toString());
-       tr.save(tache);
-       tache.setNomresponsable("nouveauResponsable");
-       tache.setDateecheance("nouvelleDate");
+	   Participant participant = new Participant("nomA","prenomA");
+	   participant.setId(UUID.randomUUID().toString());
+       pr.save(participant);
+	   
+       participant.setNom("nouveauNom");
 
        HttpHeaders headers = new HttpHeaders();
        headers.setContentType(MediaType.APPLICATION_JSON);
        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-       HttpEntity<String> entity = new HttpEntity<>(this.toJsonString(tache), headers);
+       HttpEntity<String> entity = new HttpEntity<>(this.toJsonString(participant), headers);
        
-       restTemplate.put("/taches/" + tache.getId(), entity);
+       restTemplate.put("/participants/" + participant.getId(), entity);
 
-       ResponseEntity<String> response
-               = restTemplate.getForEntity("/taches/" + tache.getId(), String.class);
+       ResponseEntity<String> response = restTemplate.getForEntity("/participants/" + participant.getId(), String.class);
        
        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-       assertThat(response.getBody()).contains("nouveauResponsable");
+       assertThat(response.getBody()).contains("nouveauNom");
        
-       String code = JsonPath.read(response.getBody(), "$.dateecheance");
-       assertThat(code).isEqualTo(tache.getDateecheance());
    }
    
    @Test
    public void deleteAPI() throws Exception {
-	   Tache tache = new Tache("TacheA","MonsieurX", "ParticipantY", "dateCreationXXX","dateEcheanceYYY","etatAAA");
-	   tache.setId(UUID.randomUUID().toString());
-       tr.save(tache);
-       restTemplate.delete("/taches/" + tache.getId());
-       ResponseEntity<?> response = 
-               restTemplate.getForEntity("/taches/"+tache.getId(), String.class);
+	   Participant participant = new Participant("nomA","prenomA");
+	   participant.setId(UUID.randomUUID().toString());
+       pr.save(participant);
+       
+       restTemplate.delete("/participants/" + participant.getId());
+       ResponseEntity<?> response = restTemplate.getForEntity("/participants/"+participant.getId(), String.class);
        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
    }
     
    
    @Test
    public void notFoundAPI() throws Exception {
-       ResponseEntity<String> response
-               = restTemplate.getForEntity("/taches/12", String.class);
+       ResponseEntity<String> response = restTemplate.getForEntity("/participants/12", String.class);
        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
    }
    
