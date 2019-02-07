@@ -70,7 +70,6 @@ public class ProjetAPIApplicationTests {
        assertThat(response.getBody()).contains("nomB");
        
        List<String> liste = JsonPath.read(response.getBody(),"$..participants..nom");
-       System.out.println(response.getBody());
        assertThat(liste).asList().hasSize(2);
       
        

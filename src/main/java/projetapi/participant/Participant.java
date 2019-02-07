@@ -1,11 +1,13 @@
 package projetapi.participant;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 
 @Entity
-public class Participant {
+public class Participant implements Serializable {
 	@Id
 	private String id;
 	private String nom;
