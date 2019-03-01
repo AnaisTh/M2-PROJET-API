@@ -71,24 +71,5 @@ public class ParticipantController {
     	return participantService.updateParticipant(id, participant);
     }
     
-     private Resources<Resource<Participant>> participantToResource(Iterable<Participant> participants) {
-        Link selfLink = linkTo(methodOn(ParticipantController.class).getAllParticipants()).withSelfRel();
-        List<Resource<Participant>> participantRessources = new ArrayList();
-        participants.forEach(participant
-                -> participantRessources.add(participantToResource(participant, false)));
-        return new Resources<>(participantRessources, selfLink);
-    }
-
-    private Resource<Participant> participantToResource(Participant participant, Boolean collection) {
-        Link selfLink = linkTo(ParticipantController.class)
-                .slash(participant.getId())
-                .withSelfRel();
-        if (collection) {
-            Link collectionLink = linkTo(methodOn(ParticipantController.class).getAllParticipants())
-                    .withSelfRel();
-            return new Resource<>(participant, selfLink, collectionLink);
-        } else {
-            return new Resource<>(participant, selfLink);
-        }
-    }
+     
 }
