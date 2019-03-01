@@ -1,4 +1,4 @@
-package projetapi.boundary;
+package projetapi.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -6,5 +6,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import projetapi.entity.Tache;
 
 @RepositoryRestResource(collectionResourceRel="taches", path="taches")
-public interface TacheRessource extends CrudRepository<Tache, String> {
+public interface TacheRepository extends CrudRepository<Tache, String> {
 }

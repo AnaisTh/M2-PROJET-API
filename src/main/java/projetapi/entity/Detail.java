@@ -3,6 +3,7 @@ package projetapi.entity;
 import java.util.List;
 import org.springframework.hateoas.core.Relation;
 
+
 @Relation(collectionRelation="taches")
 public class Detail extends Tache {
 

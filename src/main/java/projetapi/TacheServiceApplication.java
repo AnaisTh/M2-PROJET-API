@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableFeignClients // Pour scanner les services se déclarant Feign
 @EnableCircuitBreaker
 public class TacheServiceApplication {
 
