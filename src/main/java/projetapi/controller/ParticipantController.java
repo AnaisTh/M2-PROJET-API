@@ -1,4 +1,4 @@
-package projetapi.boundary;
+package projetapi.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import projetapi.entity.Participant;
+import projetapi.repository.ParticipantRepository;
+import projetapi.service.ParticipantService;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
@@ -30,52 +32,47 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping(value = "/participants", produces = MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Participant.class)
-public class ParticipantRepresentation {
+public class ParticipantController {
 
-    private final ParticipantRessource ir;
-
-    public ParticipantRepresentation(ParticipantRessource ir) {
-        this.ir = ir;
-    }
+   ParticipantService participantService;
+   
+   public ParticipantController(ParticipantService participantService) {
+		super();
+		this.participantService = participantService;
+	}
 
     // GET all
-    @GetMapping
+  	@GetMapping
     public ResponseEntity<?> getAllParticipants() {
-        Iterable<Participant> allItervenants = ir.findAll();
-        return new ResponseEntity<>(participantToResource(allItervenants), HttpStatus.OK);
+        return participantService.getAllParticipants();
     }
 
     // GET one
     @GetMapping(value = "/{participantId}")
     public ResponseEntity<?> getParticipant(@PathVariable("participantId") String id) {
-        return Optional.ofNullable(ir.findById(id))
-                .filter(Optional::isPresent)
-                .map(i -> new ResponseEntity<>(participantToResource(i.get(), true), HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return participantService.getParticipantById(id);
     }
-
+    
     // POST
     @PostMapping
     public ResponseEntity<?> newParticipant(@RequestBody Participant participant) {
-        participant.setId(UUID.randomUUID().toString());
-        Participant saved = ir.save(participant);
-        HttpHeaders responseHeader = new HttpHeaders();
-        responseHeader.setLocation(linkTo(ParticipantRepresentation.class).slash(saved.getId()).toUri());
-        return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
+    	return participantService.newParticipant(participant);
     }
 
     // DELETE
     @DeleteMapping(value = "/{participantId}")
     public ResponseEntity<?> deleteParticipant(@PathVariable("participantId") String id) {
-        Optional<Participant> participant = ir.findById(id);
-        if (participant.isPresent()) {
-            ir.delete(participant.get());
-        }
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return participantService.delete(id);
     }
-
-    private Resources<Resource<Participant>> participantToResource(Iterable<Participant> participants) {
-        Link selfLink = linkTo(methodOn(ParticipantRepresentation.class).getAllParticipants()).withSelfRel();
+    
+    //UPDATE
+    @PutMapping("/{participantId}")
+    protected ResponseEntity<?> updateParticipant(@PathVariable("participantId") String id, @RequestBody Participant participant){
+    	return participantService.updateParticipant(id, participant);
+    }
+    
+     private Resources<Resource<Participant>> participantToResource(Iterable<Participant> participants) {
+        Link selfLink = linkTo(methodOn(ParticipantController.class).getAllParticipants()).withSelfRel();
         List<Resource<Participant>> participantRessources = new ArrayList();
         participants.forEach(participant
                 -> participantRessources.add(participantToResource(participant, false)));
@@ -83,11 +80,11 @@ public class ParticipantRepresentation {
     }
 
     private Resource<Participant> participantToResource(Participant participant, Boolean collection) {
-        Link selfLink = linkTo(ParticipantRepresentation.class)
+        Link selfLink = linkTo(ParticipantController.class)
                 .slash(participant.getId())
                 .withSelfRel();
         if (collection) {
-            Link collectionLink = linkTo(methodOn(ParticipantRepresentation.class).getAllParticipants())
+            Link collectionLink = linkTo(methodOn(ParticipantController.class).getAllParticipants())
                     .withSelfRel();
             return new Resource<>(participant, selfLink, collectionLink);
         } else {
