@@ -1,10 +1,6 @@
 package projetapi.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import projetapi.entity.Participant;
 import projetapi.repository.ParticipantRepository;
-import projetapi.service.ParticipantService;
 
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.Link;
-import org.springframework.http.HttpHeaders;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.Resources;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,42 +34,89 @@ import org.springframework.web.bind.annotation.RequestBody;
 @ExposesResourceFor(Participant.class)
 public class ParticipantController {
 
-   ParticipantService participantService;
+	ParticipantRepository participantRepository;
    
-   public ParticipantController(ParticipantService participantService) {
-		super();
-		this.participantService = participantService;
+ 
+   public ParticipantController(ParticipantRepository repository) {
+		this.participantRepository =repository;
 	}
+	
 
     // GET all
   	@GetMapping
     public ResponseEntity<?> getAllParticipants() {
-        return participantService.getAllParticipants();
+  		Iterable<Participant> allParticipants = participantRepository.findAll();
+        return new ResponseEntity<>(participantToResource(allParticipants), HttpStatus.OK);
     }
 
     // GET one
     @GetMapping(value = "/{participantId}")
     public ResponseEntity<?> getParticipant(@PathVariable("participantId") String id) {
-        return participantService.getParticipantById(id);
-    }
+    	 return Optional.ofNullable(participantRepository.findById(id))
+	                .filter(Optional::isPresent)
+	                .map(i -> new ResponseEntity<>(participantToResource(i.get(), true), HttpStatus.OK))
+	                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	}
     
     // POST
     @PostMapping
     public ResponseEntity<?> newParticipant(@RequestBody Participant participant) {
-    	return participantService.newParticipant(participant);
+    	participant.setId(UUID.randomUUID().toString());
+        Participant saved = participantRepository.save(participant);
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.setLocation(linkTo(ParticipantController.class).slash(saved.getId()).toUri());
+        return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
     }
 
     // DELETE
     @DeleteMapping(value = "/{participantId}")
     public ResponseEntity<?> deleteParticipant(@PathVariable("participantId") String id) {
-        return participantService.delete(id);
+    	Optional<Participant> participant = participantRepository.findById(id);
+        if (participant.isPresent()) {
+        	participantRepository.delete(participant.get());
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }else {
+        	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
     
     //UPDATE
     @PutMapping("/{participantId}")
-    protected ResponseEntity<?> updateParticipant(@PathVariable("participantId") String id, @RequestBody Participant participant){
-    	return participantService.updateParticipant(id, participant);
+    protected ResponseEntity<?> updateParticipant(@PathVariable("participantId") String id, @RequestBody Participant participantNew){
+    	Optional<Participant> participant = participantRepository.findById(id);
+		if(!participant.isPresent()) {
+			new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		participantNew.setId(id);
+        Participant saved = participantRepository.save(participantNew);
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.setLocation(linkTo(ParticipantController.class).slash(saved.getId()).toUri());
+        return new ResponseEntity<>(null, responseHeader, HttpStatus.NO_CONTENT);
+	}
+    
+    
+    private Resources<Resource<Participant>> participantToResource(Iterable<Participant> participants) {
+        Link selfLink = linkTo(methodOn(ParticipantController.class).getAllParticipants()).withSelfRel();
+        List<Resource<Participant>> participantRessources = new ArrayList();
+        participants.forEach(participant
+                -> participantRessources.add(participantToResource(participant, false)));
+        return new Resources<>(participantRessources, selfLink);
     }
+    
+    private Resource<Participant> participantToResource(Participant participant, Boolean collection) {
+        Link selfLink = linkTo(ParticipantController.class)
+                .slash(participant.getId())
+                .withSelfRel();
+        if (collection) {
+            Link collectionLink = linkTo(methodOn(ParticipantController.class).getAllParticipants())
+                    .withSelfRel();
+            return new Resource<>(participant, selfLink, collectionLink);
+        } else {
+            return new Resource<>(participant, selfLink);
+        }
+    }
+	
+    
     
      
 }
