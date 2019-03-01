@@ -1,5 +1,11 @@
 package projetapi.entity;
 
+import java.util.Set;
+
+import javax.persistence.ElementCollection;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Participant {
     private String nom;
     private String prenom;

@@ -7,14 +7,14 @@ import org.springframework.hateoas.core.Relation;
 @Relation(collectionRelation="taches")
 public class Detail extends Tache {
 
-    private final List<Participant> participants;
+    private final List<?> participants;
 
-    public Detail(Tache tache, List<Participant> participants) {
+    public Detail(Tache tache, List<?> participants2) {
         super(tache);
-        this.participants = participants;
+        this.participants = participants2;
     }
 
-    public List<Participant> getParticipants() {
+    public List<?> getParticipants() {
         return participants;
     }
 }
