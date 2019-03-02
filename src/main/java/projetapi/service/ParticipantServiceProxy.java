@@ -35,6 +35,10 @@ public interface ParticipantServiceProxy {
 	//Get one participant of one tache
 	@GetMapping(value = "/{participantId}/tache/{tacheId}")
     ResponseEntity<?> getParticipantByTacheAndId(@PathVariable("tacheId") String tacheId, @PathVariable("participantId") String participantId);
+
+	//Ajout d'un participant	
+	@PostMapping
+    Participant newParticipant(@RequestBody Participant participant);
 	
 	/*
 	@RequestMapping(method = RequestMethod.GET, value = "/participants")

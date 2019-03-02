@@ -1,21 +1,23 @@
 package projetapi.entity;
 
-import java.util.Set;
-
-import javax.persistence.ElementCollection;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.persistence.Id;
 
 public class Participant {
+	
+	@Id
+    private String id;
     private String nom;
     private String prenom;
+    private String tacheid;
 
-    public Participant() {
+   
+	public Participant() {
     }
 
-    public Participant(String nom, String prenom, String commune, Long codepostal) {
+    public Participant(String nom, String prenom, String tacheid) {
         this.nom = nom;
         this.prenom = prenom;
+        this.tacheid = tacheid;
     }
     
     public Participant(String nom) {
@@ -38,6 +40,21 @@ public class Participant {
         this.prenom = prenom;
     }
 
+	public String getTacheid() {
+		return tacheid;
+	}
+
+	public void setTacheid(String tacheid) {
+		this.tacheid = tacheid;
+	}
+    
+	 public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
 
     
 }
