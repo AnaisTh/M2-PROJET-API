@@ -9,9 +9,9 @@ import projetapi.entity.Participant;
 
 public interface ParticipantRepository extends CrudRepository<Participant,String> {
     
-	List<Participant> findByTacheId(String tacheId);
+	List<Participant> findByTacheid(String tacheId);
 	
-	Optional<Participant> findByTacheIdAndId(String tacheId, String id);
+	Optional<Participant> findByTacheidAndId(String tacheId, String id);
 
 	Optional<Participant> findById(String id);
 }
