@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -69,6 +70,21 @@ public class TacheController {
 	}
 	
 	/*
+	 * Options de recherche de taches
+	 */
+	
+	@RequestMapping(params = "statut")
+    public ResponseEntity<?> getTacheByEtat (@RequestParam("statut") String statut) {
+		return tacheService.getTacheByEtat(statut);
+    }
+
+	@RequestMapping(params = "responsable")
+	public ResponseEntity<?> getTacheByNomresponsable(@RequestParam("responsable") String responsable){
+		return tacheService.getTacheByNomresponsable(responsable);
+	}
+
+	
+	/*
 	 * Fonctions en lien avec les participants
 	 */
 	
@@ -89,7 +105,7 @@ public class TacheController {
     protected ResponseEntity<?> newParticipantTache(@PathVariable("tacheId") String tacheId, @RequestBody Participant participant){
 		Participant saved = participantServiceProxy.newParticipant(new Participant(participant.getNom(), participant.getPrenom(), tacheId));
 		HttpHeaders responseHeader = new HttpHeaders();
-        responseHeader.setLocation(linkTo(TacheController.class).slash("participants").slash(saved.getId()).toUri());
+        responseHeader.setLocation(linkTo(TacheController.class).slash(tacheId).slash("participants").slash(saved.getId()).toUri());
         return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
 
     }
