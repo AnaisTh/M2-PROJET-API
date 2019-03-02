@@ -77,12 +77,12 @@ public class ParticipantController {
     
     // POST
     @PostMapping
-    public ResponseEntity<?> newParticipant(@RequestBody Participant participant) {
+    public Participant newParticipant(@RequestBody Participant participant) {
     	participant.setId(UUID.randomUUID().toString());
         Participant saved = participantRepository.save(participant);
-        HttpHeaders responseHeader = new HttpHeaders();
-        responseHeader.setLocation(linkTo(ParticipantController.class).slash(saved.getId()).toUri());
-        return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
+        return saved;
+        
+    
     }
 
     // DELETE
