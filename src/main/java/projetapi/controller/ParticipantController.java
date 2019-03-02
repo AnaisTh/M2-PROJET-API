@@ -42,14 +42,14 @@ public class ParticipantController {
 	}
 	
 
-    // GET all
+    // GET all participants
   	@GetMapping
     public ResponseEntity<?> getAllParticipants() {
   		Iterable<Participant> allParticipants = participantRepository.findAll();
         return new ResponseEntity<>(participantToResource(allParticipants), HttpStatus.OK);
     }
 
-    // GET one
+    // GET one participant
     @GetMapping(value = "/{participantId}")
     public ResponseEntity<?> getParticipant(@PathVariable("participantId") String id) {
     	 return Optional.ofNullable(participantRepository.findById(id))
@@ -57,6 +57,22 @@ public class ParticipantController {
 	                .map(i -> new ResponseEntity<>(participantToResource(i.get(), true), HttpStatus.OK))
 	                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
+    
+    // GET all participants of tache
+    @GetMapping(value = "tache/{tacheId}")
+    public ResponseEntity<?> getParticipantsByTache(@PathVariable("tacheId") String tacheId){
+    	Iterable<Participant> allParticipants = participantRepository.findByTacheId(tacheId);
+    	return new ResponseEntity<>(participantToResource(allParticipants), HttpStatus.OK);
+    }
+    
+    //GET one participant of on tache
+    @GetMapping(value = "/{participantId}/tache/{tacheId}")
+    public ResponseEntity<?> getParticipantByTacheAndId(@PathVariable("tacheId") String tacheId, @PathVariable("participantId") String participantId) {
+    	return Optional.ofNullable(participantRepository.findByTacheIdAndId(tacheId, participantId))
+                .filter(Optional::isPresent)
+                .map(i -> new ResponseEntity<>(participantToResource(i.get(), true), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
     
     // POST
     @PostMapping
