@@ -1,6 +1,9 @@
 package projetapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Set;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -13,8 +16,8 @@ public class Tache {
 	private String id;
 	private String nomtache;
 	private String nomresponsable;
-	private String datecreation;
-	private String dateecheance;
+	private LocalDate datecreation;
+	private LocalDate dateecheance;
 	private String etat;
 	@ElementCollection
     @JsonProperty("participants-id")
@@ -27,7 +30,7 @@ public class Tache {
 	}
 
 	
-	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, String datecreation, String dateecheance,
+	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, LocalDate datecreation, LocalDate dateecheance,
 			String etat) {
 		super();
 		this.nomtache = nomtache;
@@ -84,19 +87,19 @@ public class Tache {
 		this.participantsId = participantsId;
 	}
 
-	public String getDatecreation() {
+	public LocalDate getDatecreation() {
 		return datecreation;
 	}
 
-	public void setDatecreation(String datecreation) {
-		this.datecreation = datecreation;
+	public void setDatecreation(LocalDate localDate) {
+		this.datecreation = localDate;
 	}
 
-	public String getDateecheance() {
+	public LocalDate getDateecheance() {
 		return dateecheance;
 	}
 
-	public void setDateecheance(String dateecheance) {
+	public void setDateecheance(LocalDate dateecheance) {
 		this.dateecheance = dateecheance;
 	}
 

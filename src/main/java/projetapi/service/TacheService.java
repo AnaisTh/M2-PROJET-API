@@ -2,7 +2,8 @@ package projetapi.service;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
+import java.util.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,7 @@ public class TacheService {
 	
 	public ResponseEntity<?> saveTache(@RequestBody Tache tache) {
 		tache.setId(UUID.randomUUID().toString());
+		tache.setDatecreation(LocalDate.now());
 		Tache saved = tacheRepository.save(tache);
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setLocation(linkTo(TacheController.class).slash(saved.getId()).toUri());
