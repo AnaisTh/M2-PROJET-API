@@ -16,6 +16,7 @@ public class ParticipantService {
     @HystrixCommand(fallbackMethod = "fallback")
     public ResponseEntity<?> getParticipant(String id) {
         return restClient.getParticipantsByTache(id);
+
     }
 
     public Participant fallback(String id) {

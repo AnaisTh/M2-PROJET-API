@@ -1,12 +1,10 @@
 package projetapi.controller;
 
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import projetapi.entity.Participant;
 import projetapi.service.ParticipantServiceProxy;
 
 import org.springframework.http.MediaType;
@@ -19,6 +17,7 @@ public class TacheController {
 
 	ParticipantServiceProxy participantServiceProxy;
 	
+
 	public TacheController(ParticipantServiceProxy participantServiceProxy) {
 		this.participantServiceProxy = participantServiceProxy;
 	}
@@ -38,6 +37,7 @@ public class TacheController {
 	/*
 	
 	// Recuperation des participants de chaque tache
+
 	@RequestMapping(method = RequestMethod.GET, value = "/participants")
 	public ResponseEntity<?> getAllParticipants(){
 		return participantServiceProxy.getAllParticipants();
@@ -63,5 +63,7 @@ public class TacheController {
     ResponseEntity<?> updateParticipant(@PathVariable("participantId") String id, @RequestBody Participant participantNew){
     	return participantServiceProxy.updateParticipant(id, participantNew);
     }
+
     */
+
 }

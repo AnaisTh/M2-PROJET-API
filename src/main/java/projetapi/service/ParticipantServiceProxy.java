@@ -24,6 +24,9 @@ import projetapi.entity.Participant;
 @FeignClient("http://projet-api-participant")
 @RequestMapping(value = "/participants")
 public interface ParticipantServiceProxy {
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/participants")
+	ResponseEntity<?> getAllParticipants();
 
 	//Get all participants of tache
 	@RequestMapping(method = RequestMethod.GET, value = "tache/{tacheId}")
@@ -39,7 +42,7 @@ public interface ParticipantServiceProxy {
 
     @RequestMapping(method = RequestMethod.GET, value = "/participants/{participantId}")
     ResponseEntity<?> getParticipant(@PathVariable("participantId") String id);
-    
+
     @RequestMapping(method = RequestMethod.POST, value = "/participants")
     ResponseEntity<?> newParticipant(@RequestBody Participant participant);
     
@@ -49,6 +52,7 @@ public interface ParticipantServiceProxy {
     @RequestMapping(method = RequestMethod.PUT, value = "/participants/{participantId}")
     ResponseEntity<?> updateParticipant(@PathVariable("participantId") String id, @RequestBody Participant participantNew);
         
+
     */
     
     
