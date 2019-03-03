@@ -23,7 +23,7 @@ import projetapi.repository.TacheRepository;
 
 public class TacheService {
 
-	TacheRepository tacheRepository;
+	public TacheRepository tacheRepository;
 	
 	public TacheService(TacheRepository tacheRepository) {
 		this.tacheRepository = tacheRepository;
@@ -43,7 +43,6 @@ public class TacheService {
 
 	public ResponseEntity<?> getTacheByEtat(String etat) {
 		List<Tache> allTaches = tacheRepository.findByEtat(etat);
-		System.out.println(allTaches);
 		return new ResponseEntity<>(tacheToResource(allTaches),HttpStatus.OK);
 	}
 
@@ -68,7 +67,7 @@ public class TacheService {
 	}
 
 
-	public ResponseEntity<?> deleteIntervenant(@PathVariable("tacheId") String id) {
+	public ResponseEntity<?> deleteTache(@PathVariable("tacheId") String id) {
 		Optional<Tache> tache = tacheRepository.findById(id);
 		if (tache.isPresent()) {
 			tacheRepository.delete(tache.get());
@@ -76,7 +75,7 @@ public class TacheService {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
-	public ResponseEntity<?> updateInscription(@RequestBody Tache tache, @PathVariable("tacheId") String id) {
+	public ResponseEntity<?> updateTache(@RequestBody Tache tache, @PathVariable("tacheId") String id) {
 		Optional<Tache> body = Optional.ofNullable( tache);
 	        if (!body.isPresent()) {
 	            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

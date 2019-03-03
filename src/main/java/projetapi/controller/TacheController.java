@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import java.util.Optional;
+import java.util.Set;
+
 import projetapi.entity.Participant;
 import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
@@ -59,14 +62,14 @@ public class TacheController {
 	
 	//Suppression d'une tâche
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{tacheId}")
-	public ResponseEntity<?> deleteIntervenant(@PathVariable("tacheId") String id) {
-		return tacheService.deleteIntervenant(id);
+	public ResponseEntity<?> deleteTache(@PathVariable("tacheId") String id) {
+		return tacheService.deleteTache(id);
 	}
 	
 	//Modification d'une tâche
 	@RequestMapping(method = RequestMethod.PUT, value = "/{tacheId}")
-	public ResponseEntity<?> updateInscription(@RequestBody Tache tache, @PathVariable("tacheId") String id) {
-		return tacheService.updateInscription(tache, id);
+	public ResponseEntity<?> updateTache(@RequestBody Tache tache, @PathVariable("tacheId") String id) {
+		return tacheService.updateTache(tache, id);
 	}
 	
 	/*
@@ -106,8 +109,18 @@ public class TacheController {
 		Participant saved = participantServiceProxy.newParticipant(tacheId,participant);
 		HttpHeaders responseHeader = new HttpHeaders();
         responseHeader.setLocation(linkTo(TacheController.class).slash(tacheId).slash("participants").slash(saved.getId()).toUri());
+        
+        Optional<Tache> tacheOptional = tacheService.tacheRepository.findById(tacheId);
+        if(tacheOptional.isPresent()) {
+        	System.out.println("TROUVE");
+        	Tache tache = tacheOptional.get();
+        	Set<String> idParticipants = tache.getParticipantsId();
+        	idParticipants.add(saved.getId());
+        	tache.setParticipants(idParticipants);
+        	tacheService.updateTache(tache, tacheId);
+        }
+        
         return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
-
     }
 	
 
