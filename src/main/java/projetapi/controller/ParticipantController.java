@@ -76,9 +76,10 @@ public class ParticipantController {
     
     
     // POST
-    @PostMapping
-    public Participant newParticipant(@RequestBody Participant participant) {
+    @PostMapping("/{id}")
+    public Participant newParticipant(@PathVariable("id") String id, @RequestBody Participant participant) {
     	participant.setId(UUID.randomUUID().toString());
+    	participant.setTacheId(id);
         Participant saved = participantRepository.save(participant);
         return saved;
         
