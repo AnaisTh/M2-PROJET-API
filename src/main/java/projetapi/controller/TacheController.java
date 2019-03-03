@@ -103,7 +103,7 @@ public class TacheController {
 	//Méthode ajoutant un participant à une tâche
 	@RequestMapping(method = RequestMethod.POST, value = "{tacheId}/participants")
     protected ResponseEntity<?> newParticipantTache(@PathVariable("tacheId") String tacheId, @RequestBody Participant participant){
-		Participant saved = participantServiceProxy.newParticipant(new Participant(participant.getNom(), participant.getPrenom(), tacheId));
+		Participant saved = participantServiceProxy.newParticipant(tacheId,participant);
 		HttpHeaders responseHeader = new HttpHeaders();
         responseHeader.setLocation(linkTo(TacheController.class).slash(tacheId).slash("participants").slash(saved.getId()).toUri());
         return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
