@@ -76,14 +76,12 @@ public class ParticipantController {
     
     
     // POST
-    @PostMapping("/{id}")
-    public Participant newParticipant(@PathVariable("id") String id, @RequestBody Participant participant) {
+    @PostMapping("/{tacheid}")
+    public Participant newParticipant(@PathVariable("tacheid") String tacheid, @RequestBody Participant participant) {
     	participant.setId(UUID.randomUUID().toString());
-    	participant.setTacheId(id);
+    	participant.setTacheId(tacheid);
         Participant saved = participantRepository.save(participant);
         return saved;
-        
-    
     }
 
     // DELETE
