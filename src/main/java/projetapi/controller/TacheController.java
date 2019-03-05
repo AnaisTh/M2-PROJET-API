@@ -112,7 +112,6 @@ public class TacheController {
         
         Optional<Tache> tacheOptional = tacheService.tacheRepository.findById(tacheId);
         if(tacheOptional.isPresent()) {
-        	System.out.println("TROUVE");
         	Tache tache = tacheOptional.get();
         	Set<String> idParticipants = tache.getParticipantsId();
         	idParticipants.add(saved.getId());
@@ -121,6 +120,25 @@ public class TacheController {
         }
         
         return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
+    }
+	
+	//Méthode supprimant un participant d'une tâche
+	@RequestMapping(method = RequestMethod.DELETE, value = "{tacheId}/participants/{participantId}")
+    protected ResponseEntity<?> newParticipantTache(@PathVariable("tacheId") String tacheId, @PathVariable("participantId") String participantId){
+		ResponseEntity<?> response = participantServiceProxy.deleteParticipant(participantId);
+
+        Optional<Tache> tacheOptional = tacheService.tacheRepository.findById(tacheId);
+        if(tacheOptional.isPresent() ) {
+        	Tache tache = tacheOptional.get();
+        	Set<String> idParticipants = tache.getParticipantsId();
+        	
+        	idParticipants.remove(participantId);
+        	tache.setParticipants(idParticipants);
+        	tacheService.updateTache(tache, tacheId);
+        }
+        
+        return response;
+    	
     }
 	
 
