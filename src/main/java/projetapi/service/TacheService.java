@@ -2,7 +2,6 @@ package projetapi.service;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-import java.util.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +21,10 @@ import projetapi.controller.TacheController;
 import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
 
+
+/*
+ * Classe permettant de gérer la partie service propre aux tâches
+ */
 public class TacheService {
 
 	public TacheRepository tacheRepository;
@@ -61,17 +64,17 @@ public class TacheService {
 	public ResponseEntity<?> saveTache(@RequestBody Tache tache) {
 		tache.setId(UUID.randomUUID().toString());
 		tache.setDatecreation(LocalDate.now());
-		Set<String> participants = tache.getParticipantsId();
-		if(participants.isEmpty()) {
-			tache.setEtat(tache.getListeEtats().get(1)); // On instancie au 1er état, créé
+		//On vérifie que la date de fin est postérieure à la date de début
+		if(tache.getDatecreation().compareTo(tache.getDateecheance()) >= 0) { //Date de création supérieure à l'échéance
+			return new ResponseEntity<>("La date d'échéance de la date doit être ultérieure à la date du jour", HttpStatus.BAD_REQUEST);
 		}
-		else { // On s'assure que la tâche est en cours s'il y a un participant 
-			tache.setEtat(tache.getListeEtats().get(2));
+		else {
+			tache.setEtat(Tache.getListeEtats().get(1)); // On instancie au 1er état, créé
+			Tache saved = tacheRepository.save(tache);
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.setLocation(linkTo(TacheController.class).slash(saved.getId()).toUri());
+			return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
 		}
-		Tache saved = tacheRepository.save(tache);
-		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.setLocation(linkTo(TacheController.class).slash(saved.getId()).toUri());
-		return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
 	}
 
 

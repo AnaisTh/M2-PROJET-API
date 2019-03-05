@@ -7,18 +7,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-
 import java.util.Optional;
 import java.util.Set;
-
 import projetapi.entity.Participant;
 import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
 import projetapi.service.ParticipantServiceProxy;
 import projetapi.service.TacheService;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -150,6 +146,7 @@ public class TacheController {
 	        	}
 	        	else { //Interdication de supprimer le dernier participant puisque la tâche est en cours
 	        		response = new ResponseEntity<>("Interdiction de supprimer le dernier participant de cette tâche",HttpStatus.BAD_REQUEST);
+
 	        	}
 			}
 		}
