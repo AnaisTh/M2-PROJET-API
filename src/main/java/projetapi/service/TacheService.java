@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.hateoas.Link;
@@ -60,6 +61,13 @@ public class TacheService {
 	public ResponseEntity<?> saveTache(@RequestBody Tache tache) {
 		tache.setId(UUID.randomUUID().toString());
 		tache.setDatecreation(LocalDate.now());
+		Set<String> participants = tache.getParticipantsId();
+		if(participants.isEmpty()) {
+			tache.setEtat(tache.getListeEtats().get(1)); // On instancie au 1er état, créé
+		}
+		else { // On s'assure que la tâche est en cours s'il y a un participant 
+			tache.setEtat(tache.getListeEtats().get(2));
+		}
 		Tache saved = tacheRepository.save(tache);
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setLocation(linkTo(TacheController.class).slash(saved.getId()).toUri());
@@ -68,11 +76,14 @@ public class TacheService {
 
 
 	public ResponseEntity<?> deleteTache(@PathVariable("tacheId") String id) {
-		Optional<Tache> tache = tacheRepository.findById(id);
-		if (tache.isPresent()) {
-			tacheRepository.delete(tache.get());
+		Optional<Tache> tacheOptional = tacheRepository.findById(id);
+		if (tacheOptional.isPresent()) {
+			//tacheRepository.delete(tache.get()); //On ne la delete pas vraiment mais uniquement un changement d'état
+			Tache tache = tacheOptional.get();
+			tache.setEtat(Tache.getListeEtats().get(3)); // On enregistre l'état 3, achevée
+			tacheRepository.save(tache);
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.OK); //OK et non pas NO_CONTENT comme un delete
 	}
 	
 	public ResponseEntity<?> updateTache(@RequestBody Tache tache, @PathVariable("tacheId") String id) {

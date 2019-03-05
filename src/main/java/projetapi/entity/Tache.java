@@ -3,7 +3,9 @@ package projetapi.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -24,14 +26,17 @@ public class Tache {
     private Set<String> participantsId;
 	
 	
+	private static HashMap<Integer,String> listeEtats = new HashMap<Integer,String>();
+	static{listeEtats.put(1,"CREEE");listeEtats.put(2,"EN COURS");listeEtats.put(3,"ACHEVEE");listeEtats.put(4,"ARCHIVEE");}
+
+	
 	//Constructeur pour JPA
 	Tache(){
 		
 	}
 
 	
-	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, LocalDate datecreation, LocalDate dateecheance,
-			String etat) {
+	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, LocalDate datecreation, LocalDate dateecheance, String etat) {
 		super();
 		this.nomtache = nomtache;
 		this.nomresponsable = nomresponsable;
@@ -57,7 +62,6 @@ public class Tache {
 	public String getId() {
 		return id;
 	}
-
 
 	public void setId(String id) {
 		this.id = id;
@@ -110,6 +114,17 @@ public class Tache {
 	public void setEtat(String etat) {
 		this.etat = etat;
 	}
+
+
+	public static HashMap<Integer, String> getListeEtats() {
+		return listeEtats;
+	}
+
+
+	public void setParticipantsId(Set<String> participantsId) {
+		this.participantsId = participantsId;
+	}
+	
 	
 
     
