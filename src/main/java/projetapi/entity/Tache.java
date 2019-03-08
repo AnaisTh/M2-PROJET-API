@@ -1,42 +1,76 @@
 package projetapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
+
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * Classe representant l'entite tache du service Tache
+ * @author anais
+ *
+ */
 @Entity
 public class Tache {
 
+	/**
+	 * Identifiant de la tache
+	 */
 	@Id
 	private String id;
+	/**
+	 * Nom de la tache
+	 */
 	private String nomtache;
+	/**
+	 * Nom du responsable de la tache
+	 */
 	private String nomresponsable;
+	/**
+	 * Date de creation de la tache
+	 */
 	private LocalDate datecreation;
+	/**
+	 * Date d'echeance de la tache
+	 */
 	private LocalDate dateecheance;
+	/**
+	 * Etat courant de la tache
+	 */
 	private String etat;
+	/**
+	 * Liste des identifiants des participants de la tache
+	 */
 	@ElementCollection
-    @JsonProperty("participants-id")
-    private Set<String> participantsId;
-	
-	
-	private static HashMap<Integer,String> listeEtats = new HashMap<Integer,String>();
-	static{listeEtats.put(1,"CREEE");listeEtats.put(2,"EN COURS");listeEtats.put(3,"ACHEVEE");listeEtats.put(4,"ARCHIVEE");}
+	@JsonProperty("participants-id")
+	private Set<String> participantsId;
 
-	
-	//Constructeur pour JPA
-	Tache(){
-		
+	/**
+	 * Map static permettant de stocker l'ensemble des états possibles d'une tache
+	 */
+	private static HashMap<Integer, String> listeEtats = new HashMap<Integer, String>();
+	static {
+		listeEtats.put(1, "CREEE");
+		listeEtats.put(2, "EN COURS");
+		listeEtats.put(3, "ACHEVEE");
+		listeEtats.put(4, "ARCHIVEE");
+	}
+
+	/**
+	 * Constructeur vide d'une tache necessaire pour JPA
+	 */
+	Tache() {
+
 	}
 
 	
-	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, LocalDate datecreation, LocalDate dateecheance, String etat) {
+	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, LocalDate datecreation,
+			LocalDate dateecheance, String etat) {
 		super();
 		this.nomtache = nomtache;
 		this.nomresponsable = nomresponsable;
@@ -45,7 +79,7 @@ public class Tache {
 		this.dateecheance = dateecheance;
 		this.etat = etat;
 	}
-	
+
 	public Tache(Tache tache) {
 		this.nomtache = tache.nomtache;
 		this.nomresponsable = tache.nomresponsable;
@@ -56,9 +90,7 @@ public class Tache {
 		this.id = tache.getId();
 	}
 
-
-
-	//Getters et setters
+	// Getters et setters
 	public String getId() {
 		return id;
 	}
@@ -74,7 +106,7 @@ public class Tache {
 	public void setNomtache(String nomtache) {
 		this.nomtache = nomtache;
 	}
-	
+
 	public String getNomresponsable() {
 		return nomresponsable;
 	}
@@ -115,17 +147,12 @@ public class Tache {
 		this.etat = etat;
 	}
 
-
 	public static HashMap<Integer, String> getListeEtats() {
 		return listeEtats;
 	}
 
-
 	public void setParticipantsId(Set<String> participantsId) {
 		this.participantsId = participantsId;
 	}
-	
-	
 
-    
 }
