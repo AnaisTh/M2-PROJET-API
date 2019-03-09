@@ -46,18 +46,7 @@ public class TacheService {
 		Iterable<Tache> allTaches = tacheRepository.findAll();
 		return new ResponseEntity<>(tacheToResource(allTaches), HttpStatus.OK);
 	}
-
-	/**
-	 * Requete d'acces a une tache 
-	 * @param id identifiant de la tache a rechercher
-	 * @return ResponseEntity
-	 */
-	public ResponseEntity<?> getTache(@PathVariable("tacheId") String id) {
-		return Optional.ofNullable(tacheRepository.findById(id)).filter(Optional::isPresent)
-				.map(tache -> new ResponseEntity<>(tacheToResource(tache.get(), true), HttpStatus.OK))
-				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-	}
-
+	
 	/**
 	 * Requete d'acces aux taches selon leur etat
 	 * @param etat etat recherche
@@ -77,7 +66,7 @@ public class TacheService {
 		List<Tache> allTaches = tacheRepository.findByNomresponsable(responsable);
 		return new ResponseEntity<>(tacheToResource(allTaches), HttpStatus.OK);
 	}
-
+	
 	/**
 	 * Requete d'acces aux taches selon leur responsable et leur etat
 	 * @param etat etat a prendre en compte
@@ -88,7 +77,20 @@ public class TacheService {
 		List<Tache> allTaches = tacheRepository.findByNomresponsableAndEtat(responsable, etat);
 		return new ResponseEntity<>(tacheToResource(allTaches), HttpStatus.OK);
 	}
+	
 
+	/**
+	 * Requete d'acces a une tache
+	 * @param id identifiant de la tache a rechercher
+	 * @return ResponseEntity
+	 */
+	public ResponseEntity<?> getTache(@PathVariable("tacheId") String id) {
+		return Optional.ofNullable(tacheRepository.findById(id)).filter(Optional::isPresent)
+				.map(tache -> new ResponseEntity<>(tacheToResource(tache.get(), true), HttpStatus.OK))
+				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	}
+
+	
 	/**
 	 * Requete de sauvegarde d'une tache dans le service
 	 * @param tache tache a enregitrer
@@ -97,6 +99,8 @@ public class TacheService {
 	public ResponseEntity<?> saveTache(@RequestBody Tache tache) {
 		tache.setId(UUID.randomUUID().toString());
 		tache.setDatecreation(LocalDate.now());
+		tache.setTokenConnexion((UUID.randomUUID().toString() + UUID.randomUUID().toString()).substring(20, 40));
+		
 		// On vérifie que la date de fin est postérieure à la date de début
 		if (tache.getDatecreation().compareTo(tache.getDateecheance()) >= 0) { // Date de création supérieure à
 																				// l'échéance
@@ -175,4 +179,19 @@ public class TacheService {
 		}
 	}
 
+	public int verificationAutorisationAcces(String tacheId, String token) {
+		Optional<Tache> tacheOptional = tacheRepository.findById(tacheId);
+		if (tacheOptional.isPresent()) {
+			Tache tache = tacheOptional.get();
+			System.out.println(tache.getTokenconnexion() + " " + token);
+			if(tache.getTokenconnexion().equals(token)) {
+				return 1;
+			}
+			else { return 0; }
+		}
+		else {
+			return -1; 
+		}
+		
+	}
 }

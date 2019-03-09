@@ -44,6 +44,10 @@ public class Tache {
 	 */
 	private String etat;
 	/**
+	 * Token permettant l'acces aux informations de la tache
+	 */
+	private String tokenconnexion;
+	/**
 	 * Liste des identifiants des participants de la tache
 	 */
 	@ElementCollection
@@ -70,7 +74,7 @@ public class Tache {
 
 	
 	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, LocalDate datecreation,
-			LocalDate dateecheance, String etat) {
+			LocalDate dateecheance, String etat, String tokenconnexion) {
 		super();
 		this.nomtache = nomtache;
 		this.nomresponsable = nomresponsable;
@@ -78,6 +82,7 @@ public class Tache {
 		this.datecreation = datecreation;
 		this.dateecheance = dateecheance;
 		this.etat = etat;
+		this.tokenconnexion = tokenconnexion;
 	}
 
 	public Tache(Tache tache) {
@@ -153,6 +158,14 @@ public class Tache {
 
 	public void setParticipantsId(Set<String> participantsId) {
 		this.participantsId = participantsId;
+	}
+	
+	public String getTokenconnexion() {
+		return this.tokenconnexion;
+	}
+	
+	public void setTokenConnexion(String tokenconnexion) {
+		this.tokenconnexion= tokenconnexion;
 	}
 
 }

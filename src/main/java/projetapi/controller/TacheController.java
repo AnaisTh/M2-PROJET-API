@@ -2,7 +2,6 @@ package projetapi.controller;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.http.HttpHeaders;
@@ -12,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -61,49 +61,7 @@ public class TacheController {
 	public ResponseEntity<?> getAllTaches() {
 		return tacheService.getAllTaches();
 	}
-
-	/**
-	 * Requete qui retourne une tache particuliere
-	 * @param id identifiant de la tache
-	 * @return ResponseEntity
-	 */
-	@GetMapping(value = "/{tacheId}")
-	public ResponseEntity<?> getTache(@PathVariable("tacheId") String id) {
-		return tacheService.getTache(id);
-	}
-
-	/**
-	 * Requete d'ajout d'une tache au service
-	 * @param tache tache a ajouter
-	 * @return ResponseEntity 
-	 */
-	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> saveTache(@RequestBody Tache tache) {
-		return tacheService.saveTache(tache);
-	}
-
-	/**
-	 * Requete qui change l'etat d'une tache pour l'achever
-	 * @param id identifiant de la tache
-	 * @return ResponseEntity
-	 */
-	@RequestMapping(method = RequestMethod.DELETE, value = "/{tacheId}")
-	public ResponseEntity<?> deleteTache(@PathVariable("tacheId") String id) {
-		return tacheService.deleteTache(id);
-	}
-
-	/**
-	 * Requete qui permet de modifier une tache
-	 * @param tache tache avec les nouvelles valeurs a sauvegarder
-	 * @param id identifiant de la tache
-	 * @return ResponseEntity
-	 */
-	@RequestMapping(method = RequestMethod.PUT, value = "/{tacheId}")
-	public ResponseEntity<?> updateTache(@RequestBody Tache tache, @PathVariable("tacheId") String id) {
-		return tacheService.updateTache(tache, id);
-	}
-
-
+	
 	/**
 	 * Requete permettant de rechercher les taches selon leur etat
 	 * @param statut statut a prendre en compte
@@ -123,7 +81,81 @@ public class TacheController {
 	public ResponseEntity<?> getTacheByNomresponsable(@RequestParam("responsable") String responsable) {
 		return tacheService.getTacheByNomresponsable(responsable);
 	}
+	
 
+	/**
+	 * Requete qui retourne une tache particuliere
+	 * @param id identifiant de la tache
+	 * @param token token de verification de l'acces a la tache
+	 * @return ResponseEntity
+	 */
+	@GetMapping(value = "/{tacheId}")
+	public ResponseEntity<?> getTache(@PathVariable("tacheId") String id,@RequestHeader(value="token") String token) {
+		int code = tacheService.verificationAutorisationAcces(id,token);
+		
+		switch (code) {
+			case 0 : // Acces refuse
+				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
+			case 1 : //Acces autorise
+				break;
+			case -1 : // Tache non trouvee
+				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
+		}
+		return tacheService.getTache(id);
+
+	}
+
+	/**
+	 * Requete d'ajout d'une tache au service
+	 * @param tache tache a ajouter
+	 * @return ResponseEntity 
+	 */
+	@RequestMapping(method = RequestMethod.POST)
+	public ResponseEntity<?> saveTache(@RequestBody Tache tache) {
+		return tacheService.saveTache(tache);
+	}
+
+	/**
+	 * Requete qui change l'etat d'une tache pour l'achever
+	 * @param id identifiant de la tache
+	 * @token token qui autorise l'acces a la tache pour sa modification
+	 * @return ResponseEntity
+	 */
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{tacheId}")
+	public ResponseEntity<?> deleteTache(@PathVariable("tacheId") String id, @RequestHeader(value="token") String token) {
+		int code = tacheService.verificationAutorisationAcces(id,token);
+		
+		switch (code) {
+			case 0 : // Acces refuse
+				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
+			case 1 : //Acces autorise
+				break;
+			case -1 : // Tache non trouvee
+				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
+		}
+		return tacheService.deleteTache(id);
+	}
+
+	/**
+	 * Requete qui permet de modifier une tache
+	 * @param tache tache avec les nouvelles valeurs a sauvegarder
+	 * @param id identifiant de la tache
+	 * @return ResponseEntity
+	 */
+	@RequestMapping(method = RequestMethod.PUT, value = "/{tacheId}")
+	public ResponseEntity<?> updateTache(@RequestBody Tache tache, @PathVariable("tacheId") String id,@RequestHeader(value="token") String token) {
+		int code = tacheService.verificationAutorisationAcces(id,token);
+		
+		switch (code) {
+			case 0 : // Acces refuse
+				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
+			case 1 : //Acces autorise
+				break;
+			case -1 : // Tache non trouvee
+				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
+		}
+		return tacheService.updateTache(tache, id);
+	}
 	
 	/**
 	 * Requete de recherche de tous les participants d'une tache
@@ -131,7 +163,17 @@ public class TacheController {
 	 * @return ResponseEntity
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "{tacheId}/participants")
-	public ResponseEntity<?> getParticipantsByTache(@PathVariable("tacheId") String tacheId) {
+	public ResponseEntity<?> getParticipantsByTache(@PathVariable("tacheId") String tacheId,@RequestHeader(value="token") String token) {
+		int code = tacheService.verificationAutorisationAcces(tacheId,token);
+		
+		switch (code) {
+			case 0 : // Acces refuse
+				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
+			case 1 : //Acces autorise
+				break;
+			case -1 : // Tache non trouvee
+				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
+		}
 		return participantServiceProxy.getParticipantsByTache(tacheId);
 	}
 
@@ -143,7 +185,17 @@ public class TacheController {
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "{tacheId}/participants/{participantId}")
 	public ResponseEntity<?> getParticipantByTache(@PathVariable("tacheId") String tacheId,
-			@PathVariable("participantId") String participantId) {
+			@PathVariable("participantId") String participantId,@RequestHeader(value="token") String token) {
+		int code = tacheService.verificationAutorisationAcces(tacheId,token);
+		
+		switch (code) {
+			case 0 : // Acces refuse
+				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
+			case 1 : //Acces autorise
+				break;
+			case -1 : // Tache non trouvee
+				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
+		}
 		return participantServiceProxy.getParticipantByTacheAndId(tacheId, participantId);
 	}
 
@@ -155,24 +207,32 @@ public class TacheController {
 	 * @return ResponseEntity
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "{tacheId}/participants")
-	protected ResponseEntity<?> newParticipantTache(@PathVariable("tacheId") String tacheId,
-			@RequestBody Participant participant) {
+	protected ResponseEntity<?> newParticipantTache(@PathVariable("tacheId") String tacheId, @RequestBody Participant participant,
+			@RequestHeader(value="token") String token) {
+		
+		int code = tacheService.verificationAutorisationAcces(tacheId,token);
+		
+		switch (code) {
+			case 0 : // Acces refuse
+				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
+			case 1 : //Acces autorise
+				break;
+			case -1 : // Tache non trouvee
+				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
+		}
+		
 		Participant saved = participantServiceProxy.newParticipant(tacheId, participant);
 		HttpHeaders responseHeader = new HttpHeaders();
-		responseHeader.setLocation(
-				linkTo(TacheController.class).slash(tacheId).slash("participants").slash(saved.getId()).toUri());
+		responseHeader.setLocation(linkTo(TacheController.class).slash(tacheId).slash("participants").slash(saved.getId()).toUri());
 
-		Optional<Tache> tacheOptional = tacheService.tacheRepository.findById(tacheId);
-
-		if (tacheOptional.isPresent()) {
-			Tache tache = tacheOptional.get();
-			Set<String> idParticipants = tache.getParticipantsId();
-			idParticipants.add(saved.getId());
-			tache.setParticipants(idParticipants);
-			tache.setEtat(Tache.getListeEtats().get(2)); // On ajoute un participant donc on s'assure que la tache est
-															// dans l'état 2 EN COURS
-			tacheService.updateTache(tache, tacheId);
-		}
+		Tache tache = tacheService.tacheRepository.getOne(tacheId);
+		Set<String> idParticipants = tache.getParticipantsId();
+		idParticipants.add(saved.getId());
+		tache.setParticipants(idParticipants);
+		tache.setEtat(Tache.getListeEtats().get(2)); // On ajoute un participant donc on s'assure que la tache est
+														// dans l'état 2 EN COURS
+		tacheService.updateTache(tache, tacheId);
+		
 
 		return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
 	}
@@ -186,38 +246,42 @@ public class TacheController {
 	 */
 	@RequestMapping(method = RequestMethod.DELETE, value = "{tacheId}/participants/{participantId}")
 	protected ResponseEntity<?> deleteParticipantTache(@PathVariable("tacheId") String tacheId,
-			@PathVariable("participantId") String participantId) {
+			@PathVariable("participantId") String participantId,
+			@RequestHeader(value="token") String token) {
+		
+		int code = tacheService.verificationAutorisationAcces(tacheId,token);
+		
+		switch (code) {
+			case 0 : // Acces refuse
+				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
+			case 1 : //Acces autorise
+				break;
+			case -1 : // Tache non trouvee
+				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
+		}
+		
 		ResponseEntity<?> response;
 
-		Optional<Tache> tacheOptional = tacheService.tacheRepository.findById(tacheId);
+		Tache tache = tacheService.tacheRepository.getOne(tacheId);
+		// On s'assure tout d'abord que la tâche ne soit pas achevée
+		if (tache.getEtat().equals(Tache.getListeEtats().get(3))) {
+			response = new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
+		} else {
+			// On vérifie ensuite le nombre de participant
+			Set<String> idParticipants = tache.getParticipantsId();
 
-		if (tacheOptional.isPresent()) { // La tache existe bien
-			Tache tache = tacheOptional.get();
-
-			// On s'assure tout d'abord que la tâche ne soit pas achevée
-			if (tache.getEtat().equals(Tache.getListeEtats().get(3))) {
-				response = new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
-			} else {
-				// On vérifie ensuite le nombre de participant
-				Set<String> idParticipants = tache.getParticipantsId();
-
-				if (idParticipants.size() > 1) { // Il reste plus d'un partcipant donc on peut supprimer
-					response = participantServiceProxy.deleteParticipant(participantId);
-					idParticipants.remove(participantId);
-					tache.setParticipants(idParticipants);
-					tacheService.updateTache(tache, tacheId);
-					response = new ResponseEntity<>(HttpStatus.OK);
-				} else { // Interdication de supprimer le dernier participant puisque la tâche est en
-							// cours
-					response = new ResponseEntity<>("Interdiction de supprimer le dernier participant de cette tâche",
-							HttpStatus.BAD_REQUEST);
-
-				}
+			if (idParticipants.size() > 1) { // Il reste plus d'un partcipant donc on peut supprimer
+				response = participantServiceProxy.deleteParticipant(participantId);
+				idParticipants.remove(participantId);
+				tache.setParticipants(idParticipants);
+				tacheService.updateTache(tache, tacheId);
+				response = new ResponseEntity<>(HttpStatus.OK);
+			} else { // Interdication de supprimer le dernier participant puisque la tâche est en
+						// cours
+				response = new ResponseEntity<>("Interdiction de supprimer le dernier participant de cette tâche",
+						HttpStatus.BAD_REQUEST);
 			}
-		} else { // La tâche n'existe pas
-			response = new ResponseEntity<>("La tâche spécifiée n'existe pas", HttpStatus.BAD_REQUEST);
 		}
-
 		return response;
 
 	}
