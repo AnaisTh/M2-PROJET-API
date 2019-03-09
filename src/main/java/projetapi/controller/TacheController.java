@@ -196,7 +196,15 @@ public class TacheController {
 			case -1 : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
-		return participantServiceProxy.getParticipantByTacheAndId(tacheId, participantId);
+		
+		ResponseEntity<?> response;
+		try {
+			response = participantServiceProxy.getParticipantByTacheAndId(tacheId, participantId);
+		} catch (feign.FeignException e) {
+			response = new ResponseEntity<>("Participant inconnu pour cette tâche",HttpStatus.NOT_FOUND);
+		}
+		
+		return response;
 	}
 
 
@@ -229,11 +237,10 @@ public class TacheController {
 		Set<String> idParticipants = tache.getParticipantsId();
 		idParticipants.add(saved.getId());
 		tache.setParticipants(idParticipants);
-		tache.setEtat(Tache.getListeEtats().get(2)); // On ajoute un participant donc on s'assure que la tache est
-														// dans l'état 2 EN COURS
+		tache.setEtat(Tache.getListeEtats().get(2)); 
+		// On ajoute un participant donc on s'assure que la tache est dans l'état 2 EN COURS
 		tacheService.updateTache(tache, tacheId);
 		
-
 		return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
 	}
 
