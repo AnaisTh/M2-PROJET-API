@@ -22,6 +22,7 @@ import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
 import projetapi.service.ParticipantServiceProxy;
 import projetapi.service.TacheService;
+import projetapi.utility.EtatTache;
 
 /**
  * Classe de controle du service Tache permettant d'exposer les ressources du service
@@ -62,26 +63,6 @@ public class TacheController {
 		return tacheService.getAllTaches();
 	}
 	
-	/**
-	 * Requete permettant de rechercher les taches selon leur etat
-	 * @param statut statut a prendre en compte
-	 * @return ResponseEntity
-	 */
-	@RequestMapping(params = "statut")
-	public ResponseEntity<?> getTacheByEtat(@RequestParam("statut") String statut) {
-		return tacheService.getTacheByEtat(statut);
-	}
-
-	/**
-	 * Requete permettant de recherche les taches selon leur responsable
-	 * @param responsable responsable à prendre en compte
-	 * @return ResponseEntity
-	 */
-	@RequestMapping(params = "responsable")
-	public ResponseEntity<?> getTacheByNomresponsable(@RequestParam("responsable") String responsable) {
-		return tacheService.getTacheByNomresponsable(responsable);
-	}
-	
 
 	/**
 	 * Requete qui retourne une tache particuliere
@@ -104,6 +85,27 @@ public class TacheController {
 		return tacheService.getTache(id);
 
 	}
+	
+	/**
+	 * Requete permettant de rechercher les taches selon leur etat
+	 * @param statut statut a prendre en compte
+	 * @return ResponseEntity
+	 */
+	@RequestMapping(params = "statut")
+	public ResponseEntity<?> getTacheByEtat(@RequestParam("statut") String statut) {
+		return tacheService.getTacheByEtat(statut);
+	}
+
+	/**
+	 * Requete permettant de recherche les taches selon leur responsable
+	 * @param responsable responsable à prendre en compte
+	 * @return ResponseEntity
+	 */
+	@RequestMapping(params = "responsable")
+	public ResponseEntity<?> getTacheByNomresponsable(@RequestParam("responsable") String responsable) {
+		return tacheService.getTacheByNomresponsable(responsable);
+	}
+	
 
 	/**
 	 * Requete d'ajout d'une tache au service
@@ -236,8 +238,8 @@ public class TacheController {
 		Tache tache = tacheService.tacheRepository.getOne(tacheId);
 		Set<String> idParticipants = tache.getParticipantsId();
 		idParticipants.add(saved.getId());
-		tache.setParticipants(idParticipants);
-		tache.setEtat(Tache.getListeEtats().get(2)); 
+		tache.setParticipantsId(idParticipants);
+		tache.setEtat(EtatTache.ENCOURS.getEtat()); 
 		// On ajoute un participant donc on s'assure que la tache est dans l'état 2 EN COURS
 		tacheService.updateTache(tache, tacheId);
 		
@@ -271,7 +273,7 @@ public class TacheController {
 
 		Tache tache = tacheService.tacheRepository.getOne(tacheId);
 		// On s'assure tout d'abord que la tâche ne soit pas achevée
-		if (tache.getEtat().equals(Tache.getListeEtats().get(3))) {
+		if (tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
 			response = new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
 		} else {
 			// On vérifie ensuite le nombre de participant
@@ -280,7 +282,7 @@ public class TacheController {
 			if (idParticipants.size() > 1) { // Il reste plus d'un partcipant donc on peut supprimer
 				response = participantServiceProxy.deleteParticipant(participantId);
 				idParticipants.remove(participantId);
-				tache.setParticipants(idParticipants);
+				tache.setParticipantsId(idParticipants);
 				tacheService.updateTache(tache, tacheId);
 				response = new ResponseEntity<>(HttpStatus.OK);
 			} else { // Interdication de supprimer le dernier participant puisque la tâche est en

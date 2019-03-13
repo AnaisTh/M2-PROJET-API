@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import projetapi.controller.TacheController;
 import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
+import projetapi.utility.EtatTache;
 
 /**
  * Classe permettant de gerer la partie service propre aux taches
@@ -107,7 +108,7 @@ public class TacheService {
 			return new ResponseEntity<>("La date d'échéance de la date doit être ultérieure à la date du jour",
 					HttpStatus.BAD_REQUEST);
 		} else {
-			tache.setEtat(Tache.getListeEtats().get(1)); // On instancie au 1er état, créé
+			tache.setEtat(EtatTache.CREEE.getEtat()); // On instancie au 1er état, créé
 			Tache saved = tacheRepository.save(tache);
 			HttpHeaders responseHeaders = new HttpHeaders();
 			responseHeaders.setLocation(linkTo(TacheController.class).slash(saved.getId()).toUri());
@@ -126,7 +127,7 @@ public class TacheService {
 			// tacheRepository.delete(tache.get()); //On ne la delete pas vraiment mais
 			// uniquement un changement d'état
 			Tache tache = tacheOptional.get();
-			tache.setEtat(Tache.getListeEtats().get(3)); // On enregistre l'état 3, achevée
+			tache.setEtat(EtatTache.ACHEVEE.getEtat()); // On enregistre l'état 3, achevée
 			tacheRepository.save(tache);
 		}
 		return new ResponseEntity<>(HttpStatus.OK); // OK et non pas NO_CONTENT comme un delete

@@ -1,5 +1,7 @@
 package projetapi.entity;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Set;
@@ -8,7 +10,10 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * Classe representant l'entite tache du service Tache
@@ -34,10 +39,12 @@ public class Tache {
 	/**
 	 * Date de creation de la tache
 	 */
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate datecreation;
 	/**
 	 * Date d'echeance de la tache
 	 */
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate dateecheance;
 	/**
 	 * Etat courant de la tache
@@ -54,16 +61,7 @@ public class Tache {
 	@JsonProperty("participants-id")
 	private Set<String> participantsId;
 
-	/**
-	 * Map static permettant de stocker l'ensemble des états possibles d'une tache
-	 */
-	private static HashMap<Integer, String> listeEtats = new HashMap<Integer, String>();
-	static {
-		listeEtats.put(1, "CREEE");
-		listeEtats.put(2, "EN COURS");
-		listeEtats.put(3, "ACHEVEE");
-		listeEtats.put(4, "ARCHIVEE");
-	}
+	
 
 	/**
 	 * Constructeur vide d'une tache necessaire pour JPA
@@ -83,6 +81,7 @@ public class Tache {
 		this.dateecheance = dateecheance;
 		this.etat = etat;
 		this.tokenconnexion = tokenconnexion;
+	    
 	}
 
 	public Tache(Tache tache) {
@@ -124,9 +123,6 @@ public class Tache {
 		return participantsId;
 	}
 
-	public void setParticipants(Set<String> participantsId) {
-		this.participantsId = participantsId;
-	}
 
 	public LocalDate getDatecreation() {
 		return datecreation;
@@ -152,10 +148,6 @@ public class Tache {
 		this.etat = etat;
 	}
 
-	public static HashMap<Integer, String> getListeEtats() {
-		return listeEtats;
-	}
-
 	public void setParticipantsId(Set<String> participantsId) {
 		this.participantsId = participantsId;
 	}
@@ -168,4 +160,11 @@ public class Tache {
 		this.tokenconnexion= tokenconnexion;
 	}
 
+	 public String toJsonString() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        objectMapper.setDateFormat(fmt);
+        return objectMapper.writeValueAsString(this);
+	}
 }
+
