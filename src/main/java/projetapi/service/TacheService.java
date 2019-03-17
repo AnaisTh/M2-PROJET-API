@@ -151,6 +151,28 @@ public class TacheService {
 		Tache result = tacheRepository.save(tache);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+	
+
+	public ResponseEntity<?> updateTacheDateFin(LocalDate nouvelleDate, String id){
+		if (!tacheRepository.existsById(id)) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		else {
+			Tache tache = tacheRepository.getOne(id);
+			if (tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
+				return new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
+			}
+			if(nouvelleDate.isBefore(tache.getDatecreation()) || nouvelleDate.isBefore(LocalDate.now())) {
+				return new ResponseEntity<>("La date est invalide. Impossible d'avoir une date de fin antérieure à la date de création ou à la date du jour",HttpStatus.BAD_REQUEST);
+			}
+			else {
+				tache.setDateecheance(nouvelleDate);
+				tacheRepository.save(tache);
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+			
+		}
+	}
 
 	/**
 	 * Conversion d'une liste de tache sous forme de ressources
@@ -195,4 +217,6 @@ public class TacheService {
 		}
 		
 	}
+
+	
 }

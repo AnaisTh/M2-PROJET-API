@@ -2,6 +2,11 @@ package projetapi.controller;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import org.springframework.http.HttpHeaders;
@@ -22,6 +27,7 @@ import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
 import projetapi.service.ParticipantServiceProxy;
 import projetapi.service.TacheService;
+import projetapi.utility.DateUtilitaire;
 import projetapi.utility.EtatTache;
 
 /**
@@ -139,13 +145,15 @@ public class TacheController {
 	}
 
 	/**
-	 * Requete qui permet de modifier une tache
-	 * @param tache tache avec les nouvelles valeurs a sauvegarder
-	 * @param id identifiant de la tache
-	 * @return ResponseEntity
+	 * Requete qui permet de modifier la date de fin d'une tache
+	 * @param id id de la tache à modifier 
+	 * @param dateFin nouvelle date de fin a ajouter
+	 * @param token token d'acces a la tache
+	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.PUT, value = "/{tacheId}")
-	public ResponseEntity<?> updateTache(@RequestBody Tache tache, @PathVariable("tacheId") String id,@RequestHeader(value="token") String token) {
+	@RequestMapping(method = RequestMethod.PUT, value = "/{tacheId}", params="dateFin")
+	public ResponseEntity<?> updateTacheDateFin(@PathVariable("tacheId") String id,@RequestParam("dateFin") String dateFin,
+			@RequestHeader(value="token") String token) {
 		int code = tacheService.verificationAutorisationAcces(id,token);
 		
 		switch (code) {
@@ -156,8 +164,15 @@ public class TacheController {
 			case -1 : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
-		return tacheService.updateTache(tache, id);
+		if(!DateUtilitaire.verifDate(dateFin)) {
+			return new ResponseEntity<>("Format de date invalide. Celui-ci doit être dd-MM-yyyy",HttpStatus.BAD_REQUEST);
+		}
+		return tacheService.updateTacheDateFin(DateUtilitaire.convertDate(dateFin), id);
 	}
+	
+	
+
+	
 	
 	/**
 	 * Requete de recherche de tous les participants d'une tache

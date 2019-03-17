@@ -3,7 +3,6 @@ package projetapi.entity;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Set;
 
 import javax.persistence.ElementCollection;
@@ -13,7 +12,6 @@ import javax.persistence.Id;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * Classe representant l'entite tache du service Tache
