@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.hateoas.Link;
@@ -134,25 +135,13 @@ public class TacheService {
 		return new ResponseEntity<>(HttpStatus.OK); // OK et non pas NO_CONTENT comme un delete
 	}
 
+	
 	/**
-	 * Requete de mise a jour d'une tache du service
-	 * @param tache nouvelle tache a enregistrer
+	 * Methode permettant de mettre a jour la date de fin d'une tache
+	 * @param nouvelleDate nouvelle date a prendre en compte
 	 * @param id identifiant de la tache a modifier
 	 * @return ResponseEntity
 	 */
-	public ResponseEntity<?> updateTache(@RequestBody Tache tache, @PathVariable("tacheId") String id) {
-		Optional<Tache> body = Optional.ofNullable(tache);
-		if (!body.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-		if (!tacheRepository.existsById(id)) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		tache.setId(id);
-		Tache result = tacheRepository.save(tache);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-	
 
 	public ResponseEntity<?> updateTacheDateFin(LocalDate nouvelleDate, String id){
 		if (!tacheRepository.existsById(id)) {
@@ -160,10 +149,11 @@ public class TacheService {
 		}
 		else {
 			Tache tache = tacheRepository.getOne(id);
+			
 			if (tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
 				return new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
 			}
-			if(nouvelleDate.isBefore(tache.getDatecreation()) || nouvelleDate.isBefore(LocalDate.now())) {
+			else if(nouvelleDate.isBefore(tache.getDatecreation()) || nouvelleDate.isBefore(LocalDate.now())) {
 				return new ResponseEntity<>("La date est invalide. Impossible d'avoir une date de fin antérieure à la date de création ou à la date du jour",HttpStatus.BAD_REQUEST);
 			}
 			else {
@@ -173,6 +163,51 @@ public class TacheService {
 			}
 			
 		}
+	}
+	
+	/**
+	 * Méthode permettant de verifier si l'acces a une tache est autorise
+	 * @param tacheId
+	 * @param token
+	 * @return
+	 */
+	public AutorisationAcces verificationAutorisationAcces(String tacheId, String token) {
+		Optional<Tache> tacheOptional = tacheRepository.findById(tacheId);
+		if (tacheOptional.isPresent()) {
+			Tache tache = tacheOptional.get();
+			if(tache.getTokenconnexion().equals(token)) {
+				return AutorisationAcces.AUTORISE;
+			}
+			else { return AutorisationAcces.REFUSE; }
+		}
+		else {
+			return AutorisationAcces.INCONNU; 
+		}
+		
+		
+	}
+	/**
+	 * Methode permettant l'ajout d'une reference d'un participant a une tache
+	 * @param tacheId tache concernee
+	 * @param participantId id du participant a ajouter
+	 */
+	public void ajoutParticipantTache(String tacheId, String participantId) {
+		Tache tache = tacheRepository.getOne(tacheId);
+		Set<String> idParticipants = tache.getParticipantsId();
+		idParticipants.add(participantId);
+		tache.setParticipantsId(idParticipants);
+		tache.setEtat(EtatTache.ENCOURS.getEtat()); 
+		tacheRepository.save(tache);
+		// On ajoute un participant donc on s'assure que la tache est dans l'état 2 EN COURS
+
+	}
+	
+	public void retraitParticipantTache(String tacheId, String participantId) {
+		Tache tache = tacheRepository.getOne(tacheId);
+		Set<String> idParticipants = tache.getParticipantsId();
+		idParticipants.remove(participantId);
+		tache.setParticipantsId(idParticipants);
+		tacheRepository.save(tache);
 	}
 
 	/**
@@ -203,21 +238,7 @@ public class TacheService {
 		}
 	}
 
-	public AutorisationAcces verificationAutorisationAcces(String tacheId, String token) {
-		Optional<Tache> tacheOptional = tacheRepository.findById(tacheId);
-		if (tacheOptional.isPresent()) {
-			Tache tache = tacheOptional.get();
-			if(tache.getTokenconnexion().equals(token)) {
-				return AutorisationAcces.AUTORISE;
-			}
-			else { return AutorisationAcces.REFUSE; }
-		}
-		else {
-			return AutorisationAcces.INCONNU; 
-		}
-		
-		
-	}
+	
 
 	
 }

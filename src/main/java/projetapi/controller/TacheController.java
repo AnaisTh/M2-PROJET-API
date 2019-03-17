@@ -1,7 +1,11 @@
 package projetapi.controller;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.http.HttpHeaders;
@@ -17,9 +21,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.jayway.jsonpath.JsonPath;
+
 import projetapi.entity.Participant;
 import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
+import projetapi.service.ParticipantService;
 import projetapi.service.ParticipantServiceProxy;
 import projetapi.service.TacheService;
 import projetapi.utility.AutorisationAcces;
@@ -36,14 +45,17 @@ import projetapi.utility.EtatTache;
 public class TacheController {
 	// Permet d'utiliser les requête de participant dans le contexte des tâches
 
-	/**
-	 * Acces au service Participant
-	 */
-	ParticipantServiceProxy participantServiceProxy;
+	
+	
 	/**
 	 * Acces au requêtes du service Tache
 	 */
 	TacheService tacheService;
+	
+	/**
+	 * Acces aux requêtes du service Participant
+	 */
+	ParticipantService participantService;
 
 	/**
 	 * Constructeur du controlleur du service Tache
@@ -51,7 +63,7 @@ public class TacheController {
 	 * @param tacheRepository repository d'acces aux informations des taches
 	 */
 	public TacheController(ParticipantServiceProxy participantServiceProxy, TacheRepository tacheRepository) {
-		this.participantServiceProxy = participantServiceProxy;
+		this.participantService = new ParticipantService(participantServiceProxy);
 		this.tacheService = new TacheService(tacheRepository);
 	}
 
@@ -74,10 +86,12 @@ public class TacheController {
 	 */
 	@GetMapping(value = "/{tacheId}")
 	public ResponseEntity<?> getTache(@PathVariable("tacheId") String id,@RequestHeader(value="token") String token) {
+		
 		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(id,token);
 		if(!autorisation.equals(AutorisationAcces.AUTORISE)) {
 			return new ResponseEntity<>(autorisation.getMessage(),autorisation.getHttpStatus());
 		}
+		
 		return tacheService.getTache(id);
 
 	}
@@ -91,6 +105,7 @@ public class TacheController {
 	public ResponseEntity<?> getTacheByEtat(@RequestParam("statut") String statut) {
 		return tacheService.getTacheByEtat(statut);
 	}
+	
 
 	/**
 	 * Requete permettant de recherche les taches selon leur responsable
@@ -161,7 +176,7 @@ public class TacheController {
 		if(!autorisation.equals(AutorisationAcces.AUTORISE)) {
 			return new ResponseEntity<>(autorisation.getMessage(),autorisation.getHttpStatus());
 		}
-		return participantServiceProxy.getParticipantsByTache(tacheId);
+		return participantService.getParticipantsByTache(tacheId);
 	}
 
 	/**
@@ -178,15 +193,8 @@ public class TacheController {
 		if(!autorisation.equals(AutorisationAcces.AUTORISE)) {
 			return new ResponseEntity<>(autorisation.getMessage(),autorisation.getHttpStatus());
 		}
+		return participantService.getParticipantByTache(tacheId, participantId);
 		
-		ResponseEntity<?> response;
-		try {
-			response = participantServiceProxy.getParticipantByTacheAndId(tacheId, participantId);
-		} catch (feign.FeignException e) {
-			response = new ResponseEntity<>("Participant inconnu pour cette tâche",HttpStatus.NOT_FOUND);
-		}
-		
-		return response;
 	}
 
 
@@ -195,36 +203,32 @@ public class TacheController {
 	 * @param tacheId identifiant de la tache pour laquelle ajouter un participant
 	 * @param participant participant a ajouter a la tache
 	 * @return ResponseEntity
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "{tacheId}/participants")
 	protected ResponseEntity<?> newParticipantTache(@PathVariable("tacheId") String tacheId, @RequestBody Participant participant,
-			@RequestHeader(value="token") String token) {
+			@RequestHeader(value="token") String token) throws JsonParseException, JsonMappingException, IOException {
 		
 		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(tacheId,token);
 		if(!autorisation.equals(AutorisationAcces.AUTORISE)) {
 			return new ResponseEntity<>(autorisation.getMessage(),autorisation.getHttpStatus());
 		}
-		
-		Participant saved = participantServiceProxy.newParticipant(tacheId, participant);
-		HttpHeaders responseHeader = new HttpHeaders();
-		responseHeader.setLocation(linkTo(TacheController.class).slash(tacheId).slash("participants").slash(saved.getId()).toUri());
 
-		Tache tache = tacheService.tacheRepository.getOne(tacheId);
-		Set<String> idParticipants = tache.getParticipantsId();
-		idParticipants.add(saved.getId());
-		tache.setParticipantsId(idParticipants);
-		tache.setEtat(EtatTache.ENCOURS.getEtat()); 
-		// On ajoute un participant donc on s'assure que la tache est dans l'état 2 EN COURS
-		tacheService.updateTache(tache, tacheId);
+		ResponseEntity<?> response = participantService.newParticipantTache(tacheId, participant);
 		
-		return new ResponseEntity<>(null, responseHeader, HttpStatus.CREATED);
+		Participant saved = Participant.StringToParticipant(response.getBody().toString());
+		tacheService.ajoutParticipantTache(tacheId, saved.getId());
+		
+		return new ResponseEntity<>( HttpStatus.CREATED);
 	}
 
 	
 	/**
 	 * Requete de suppression d'un participant d'une tache
 	 * @param tacheId identifiant de la tache pour laquelle supprimer un participant
-	 * @param participantId identiffiant du participant a retirer
+	 * @param participantId identifiant du participant a retirer
 	 * @return ResponseEntity
 	 */
 	@RequestMapping(method = RequestMethod.DELETE, value = "{tacheId}/participants/{participantId}")
@@ -248,13 +252,13 @@ public class TacheController {
 			Set<String> idParticipants = tache.getParticipantsId();
 
 			if (idParticipants.size() > 1) { // Il reste plus d'un partcipant donc on peut supprimer
-				response = participantServiceProxy.deleteParticipant(participantId);
-				idParticipants.remove(participantId);
-				tache.setParticipantsId(idParticipants);
-				tacheService.updateTache(tache, tacheId);
+				response = participantService.deleteParticipantTache(participantId);
+				if(response.getStatusCode() == HttpStatus.NO_CONTENT) {
+					tacheService.retraitParticipantTache(tacheId,participantId);
+				}
 				response = new ResponseEntity<>(HttpStatus.OK);
-			} else { // Interdication de supprimer le dernier participant puisque la tâche est en
-						// cours
+			} else { 
+				// Interdication de supprimer le dernier participant puisque la tâche est en cours
 				response = new ResponseEntity<>("Interdiction de supprimer le dernier participant de cette tâche",
 						HttpStatus.BAD_REQUEST);
 			}

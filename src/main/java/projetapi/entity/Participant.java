@@ -1,6 +1,12 @@
 package projetapi.entity;
 
+import java.io.IOException;
+
 import javax.persistence.Id;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Classe representant l'entite participant du service Participant
@@ -73,6 +79,11 @@ public class Participant {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+	
+	public static Participant StringToParticipant(String json) throws JsonParseException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, Participant.class);
 	}
 
 }
