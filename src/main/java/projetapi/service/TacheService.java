@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import projetapi.controller.TacheController;
 import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
+import projetapi.utility.AutorisationAcces;
 import projetapi.utility.EtatTache;
 
 /**
@@ -202,19 +203,19 @@ public class TacheService {
 		}
 	}
 
-	public int verificationAutorisationAcces(String tacheId, String token) {
+	public AutorisationAcces verificationAutorisationAcces(String tacheId, String token) {
 		Optional<Tache> tacheOptional = tacheRepository.findById(tacheId);
 		if (tacheOptional.isPresent()) {
 			Tache tache = tacheOptional.get();
-			System.out.println(tache.getTokenconnexion() + " " + token);
 			if(tache.getTokenconnexion().equals(token)) {
-				return 1;
+				return AutorisationAcces.AUTORISE;
 			}
-			else { return 0; }
+			else { return AutorisationAcces.REFUSE; }
 		}
 		else {
-			return -1; 
+			return AutorisationAcces.INCONNU; 
 		}
+		
 		
 	}
 

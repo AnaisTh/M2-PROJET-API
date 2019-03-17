@@ -27,6 +27,7 @@ import projetapi.entity.Tache;
 import projetapi.repository.TacheRepository;
 import projetapi.service.ParticipantServiceProxy;
 import projetapi.service.TacheService;
+import projetapi.utility.AutorisationAcces;
 import projetapi.utility.DateUtilitaire;
 import projetapi.utility.EtatTache;
 
@@ -78,14 +79,13 @@ public class TacheController {
 	 */
 	@GetMapping(value = "/{tacheId}")
 	public ResponseEntity<?> getTache(@PathVariable("tacheId") String id,@RequestHeader(value="token") String token) {
-		int code = tacheService.verificationAutorisationAcces(id,token);
-		
-		switch (code) {
-			case 0 : // Acces refuse
+		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(id,token);
+		switch (autorisation) {
+			case REFUSE : // Acces refuse
 				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
-			case 1 : //Acces autorise
+			case AUTORISE : //Acces autorise
 				break;
-			case -1 : // Tache non trouvee
+			case INCONNU : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
 		return tacheService.getTache(id);
@@ -131,14 +131,13 @@ public class TacheController {
 	 */
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{tacheId}")
 	public ResponseEntity<?> deleteTache(@PathVariable("tacheId") String id, @RequestHeader(value="token") String token) {
-		int code = tacheService.verificationAutorisationAcces(id,token);
-		
-		switch (code) {
-			case 0 : // Acces refuse
+		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(id,token);
+		switch (autorisation) {
+			case REFUSE : // Acces refuse
 				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
-			case 1 : //Acces autorise
+			case AUTORISE : //Acces autorise
 				break;
-			case -1 : // Tache non trouvee
+			case INCONNU : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
 		return tacheService.deleteTache(id);
@@ -154,14 +153,13 @@ public class TacheController {
 	@RequestMapping(method = RequestMethod.PUT, value = "/{tacheId}", params="dateFin")
 	public ResponseEntity<?> updateTacheDateFin(@PathVariable("tacheId") String id,@RequestParam("dateFin") String dateFin,
 			@RequestHeader(value="token") String token) {
-		int code = tacheService.verificationAutorisationAcces(id,token);
-		
-		switch (code) {
-			case 0 : // Acces refuse
+		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(id,token);
+		switch (autorisation) {
+			case REFUSE : // Acces refuse
 				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
-			case 1 : //Acces autorise
+			case AUTORISE : //Acces autorise
 				break;
-			case -1 : // Tache non trouvee
+			case INCONNU : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
 		if(!DateUtilitaire.verifDate(dateFin)) {
@@ -181,14 +179,13 @@ public class TacheController {
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "{tacheId}/participants")
 	public ResponseEntity<?> getParticipantsByTache(@PathVariable("tacheId") String tacheId,@RequestHeader(value="token") String token) {
-		int code = tacheService.verificationAutorisationAcces(tacheId,token);
-		
-		switch (code) {
-			case 0 : // Acces refuse
+		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(tacheId,token);
+		switch (autorisation) {
+			case REFUSE : // Acces refuse
 				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
-			case 1 : //Acces autorise
+			case AUTORISE : //Acces autorise
 				break;
-			case -1 : // Tache non trouvee
+			case INCONNU : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
 		return participantServiceProxy.getParticipantsByTache(tacheId);
@@ -203,14 +200,13 @@ public class TacheController {
 	@RequestMapping(method = RequestMethod.GET, value = "{tacheId}/participants/{participantId}")
 	public ResponseEntity<?> getParticipantByTache(@PathVariable("tacheId") String tacheId,
 			@PathVariable("participantId") String participantId,@RequestHeader(value="token") String token) {
-		int code = tacheService.verificationAutorisationAcces(tacheId,token);
-		
-		switch (code) {
-			case 0 : // Acces refuse
+		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(tacheId,token);
+		switch (autorisation) {
+			case REFUSE : // Acces refuse
 				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
-			case 1 : //Acces autorise
+			case AUTORISE : //Acces autorise
 				break;
-			case -1 : // Tache non trouvee
+			case INCONNU : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
 		
@@ -235,14 +231,13 @@ public class TacheController {
 	protected ResponseEntity<?> newParticipantTache(@PathVariable("tacheId") String tacheId, @RequestBody Participant participant,
 			@RequestHeader(value="token") String token) {
 		
-		int code = tacheService.verificationAutorisationAcces(tacheId,token);
-		
-		switch (code) {
-			case 0 : // Acces refuse
+		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(tacheId,token);
+		switch (autorisation) {
+			case REFUSE : // Acces refuse
 				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
-			case 1 : //Acces autorise
+			case AUTORISE : //Acces autorise
 				break;
-			case -1 : // Tache non trouvee
+			case INCONNU : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
 		
@@ -273,14 +268,13 @@ public class TacheController {
 			@PathVariable("participantId") String participantId,
 			@RequestHeader(value="token") String token) {
 		
-		int code = tacheService.verificationAutorisationAcces(tacheId,token);
-		
-		switch (code) {
-			case 0 : // Acces refuse
+		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(tacheId,token);
+		switch (autorisation) {
+			case REFUSE : // Acces refuse
 				return new ResponseEntity<>("Acces refusé",HttpStatus.FORBIDDEN);
-			case 1 : //Acces autorise
+			case AUTORISE : //Acces autorise
 				break;
-			case -1 : // Tache non trouvee
+			case INCONNU : // Tache non trouvee
 				return new ResponseEntity<>("Tache inconnue",HttpStatus.NOT_FOUND);
 		}
 		
