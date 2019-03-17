@@ -6,7 +6,6 @@ public enum EtatTache {
 	ACHEVEE("ACHEVEE"),
 	ARCHIVEE("ARCHIVEE");
 	
-	
 	private String etat;
 	
 	public String getEtat() {
