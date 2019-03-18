@@ -3,7 +3,6 @@ package projetapi.service;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +26,7 @@ import projetapi.utility.AutorisationAcces;
 import projetapi.utility.EtatTache;
 
 /**
- * Classe permettant de gerer la partie service propre aux taches
+ * Classe permettant de gerer la partie service propre aux taches, de réaliser les différentes requêtes
  * @author anais
  *
  */
@@ -106,8 +105,8 @@ public class TacheService {
 		tache.setTokenConnexion((UUID.randomUUID().toString() + UUID.randomUUID().toString()).substring(20, 40));
 		
 		// On vérifie que la date de fin est postérieure à la date de début
-		if (tache.getDatecreation().compareTo(tache.getDateecheance()) >= 0) { // Date de création supérieure à
-																				// l'échéance
+		if (tache.getDatecreation().compareTo(tache.getDateecheance()) >= 0) { 
+			// Date de création supérieure à l'échéance
 			return new ResponseEntity<>("La date d'échéance de la date doit être ultérieure à la date du jour",
 					HttpStatus.BAD_REQUEST);
 		} else {
@@ -127,10 +126,10 @@ public class TacheService {
 	public ResponseEntity<?> deleteTache(@PathVariable("tacheId") String id) {
 		Optional<Tache> tacheOptional = tacheRepository.findById(id);
 		if (tacheOptional.isPresent()) {
-			// tacheRepository.delete(tache.get()); //On ne la delete pas vraiment mais
-			// uniquement un changement d'état
+			// tacheRepository.delete(tache.get()); 
+			//On ne la delete pas vraiment mais uniquement un changement d'état
 			Tache tache = tacheOptional.get();
-			tache.setEtat(EtatTache.ACHEVEE.getEtat()); // On enregistre l'état 3, achevée
+			tache.setEtat(EtatTache.ACHEVEE.getEtat()); 
 			tacheRepository.save(tache);
 		}
 		return new ResponseEntity<>(HttpStatus.OK); // OK et non pas NO_CONTENT comme un delete
@@ -155,7 +154,8 @@ public class TacheService {
 				return new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
 			}
 			else if(nouvelleDate.before(tache.getDatecreation()) || nouvelleDate.before(new Date())) {
-				return new ResponseEntity<>("La date est invalide. Impossible d'avoir une date de fin antérieure à la date de création ou à la date du jour",HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>("La date est invalide. Impossible d'avoir une date de "
+						+ "fin antérieure à la date de création ou à la date du jour",HttpStatus.BAD_REQUEST);
 			}
 			else {
 				tache.setDateecheance(nouvelleDate);
@@ -170,7 +170,7 @@ public class TacheService {
 	 * Méthode permettant de verifier si l'acces a une tache est autorise
 	 * @param tacheId
 	 * @param token
-	 * @return
+	 * @return une autorisation d'accès
 	 */
 	public AutorisationAcces verificationAutorisationAcces(String tacheId, String token) {
 		Optional<Tache> tacheOptional = tacheRepository.findById(tacheId);
@@ -199,7 +199,6 @@ public class TacheService {
 		tache.setParticipantsId(idParticipants);
 		tache.setEtat(EtatTache.ENCOURS.getEtat()); 
 		tacheRepository.save(tache);
-		// On ajoute un participant donc on s'assure que la tache est dans l'état 2 EN COURS
 
 	}
 	

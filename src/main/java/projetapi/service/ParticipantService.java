@@ -54,6 +54,7 @@ public class ParticipantService {
 		}
 		return response;
 	}
+	
 	/**
 	 * Requete d'ajout d'un participant à une tache
 	 * @param tacheId identifiant de la tache pour laquelle ajouter un participant

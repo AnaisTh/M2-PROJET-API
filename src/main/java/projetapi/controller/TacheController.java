@@ -32,6 +32,8 @@ import projetapi.utility.EtatTache;
 
 /**
  * Classe de controle du service Tache permettant d'exposer les ressources du service
+ * Le détail des requêtes sur les objets est géré par la classe TacheService pour les tâches, et participantService pour les participants
+ * Ici seules les vérifications d'accès sont réalisées, comme le token d'accès, ou le format des dates
  * @author anais
  *
  */
@@ -40,7 +42,6 @@ import projetapi.utility.EtatTache;
 public class TacheController {
 	// Permet d'utiliser les requête de participant dans le contexte des tâches
 
-	
 	
 	/**
 	 * Acces au requêtes du service Tache
@@ -52,6 +53,7 @@ public class TacheController {
 	 */
 	ParticipantService participantService;
 
+	
 	/**
 	 * Constructeur du controlleur du service Tache
 	 * @param participantServiceProxy service d'utilisation des requetes de l'API participant
@@ -199,9 +201,6 @@ public class TacheController {
 	 * @param tacheId identifiant de la tache pour laquelle ajouter un participant
 	 * @param participant participant a ajouter a la tache
 	 * @return ResponseEntity
-	 * @throws IOException 
-	 * @throws JsonMappingException 
-	 * @throws JsonParseException 
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "{tacheId}/participants")
 	protected ResponseEntity<?> newParticipantTache(@PathVariable("tacheId") String tacheId, @RequestBody Participant participant,
@@ -211,13 +210,19 @@ public class TacheController {
 		if(!autorisation.equals(AutorisationAcces.AUTORISE)) {
 			return new ResponseEntity<>(autorisation.getMessage(),autorisation.getHttpStatus());
 		}
-
-		ResponseEntity<?> response = participantService.newParticipantTache(tacheId, participant);
 		
-		Participant saved = Participant.StringToParticipant(response.getBody().toString());
-		tacheService.ajoutParticipantTache(tacheId, saved.getId());
+		Tache tache = tacheService.tacheRepository.getOne(tacheId);
+		if(tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
+			return new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
+		}
+		else {
+			ResponseEntity<?> response = participantService.newParticipantTache(tacheId, participant);
+			Participant saved = Participant.StringToParticipant(response.getBody().toString());
+			tacheService.ajoutParticipantTache(tacheId, saved.getId());
+			return new ResponseEntity<>( HttpStatus.CREATED);
+		}
 		
-		return new ResponseEntity<>( HttpStatus.CREATED);
+		
 	}
 
 	
