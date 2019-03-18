@@ -2,16 +2,12 @@ package projetapi.service;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
-import java.util.Set;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import projetapi.controller.TacheController;
 import projetapi.entity.Participant;
-import projetapi.entity.Tache;
-import projetapi.utility.EtatTache;
 
 /**
  * Classe permettant de gerer la partie service propre aux participants

@@ -2,16 +2,20 @@ package projetapi.entity;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import projetapi.utility.EtatTache;
 
 /**
  * Classe representant l'entite tache du service Tache
@@ -37,13 +41,13 @@ public class Tache {
 	/**
 	 * Date de creation de la tache
 	 */
-	@JsonFormat(pattern = "yyyy-MM-dd")
-	private LocalDate datecreation;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date datecreation;
 	/**
 	 * Date d'echeance de la tache
 	 */
-	@JsonFormat(pattern = "yyyy-MM-dd")
-	private LocalDate dateecheance;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date dateecheance;
 	/**
 	 * Etat courant de la tache
 	 */
@@ -69,8 +73,8 @@ public class Tache {
 	}
 
 	
-	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, LocalDate datecreation,
-			LocalDate dateecheance, String etat, String tokenconnexion) {
+	public Tache(String nomtache, String nomresponsable, Set<String> participantsId, Date datecreation,
+			Date dateecheance, String etat, String tokenconnexion) {
 		super();
 		this.nomtache = nomtache;
 		this.nomresponsable = nomresponsable;
@@ -79,7 +83,18 @@ public class Tache {
 		this.dateecheance = dateecheance;
 		this.etat = etat;
 		this.tokenconnexion = tokenconnexion;
-	    
+	}
+	
+	public Tache(String nomtache, String nomresponsable,
+			Date dateecheance, String tokenconnexion) {
+		super();
+		this.nomtache = nomtache;
+		this.nomresponsable = nomresponsable;
+		this.participantsId = new HashSet<String>();
+		this.datecreation = new Date();
+		this.dateecheance = dateecheance;
+		this.etat = EtatTache.CREEE.getEtat();
+		this.tokenconnexion = tokenconnexion;
 	}
 
 	public Tache(Tache tache) {
@@ -122,19 +137,19 @@ public class Tache {
 	}
 
 
-	public LocalDate getDatecreation() {
+	public Date getDatecreation() {
 		return datecreation;
 	}
 
-	public void setDatecreation(LocalDate localDate) {
+	public void setDatecreation(Date localDate) {
 		this.datecreation = localDate;
 	}
 
-	public LocalDate getDateecheance() {
+	public Date getDateecheance() {
 		return dateecheance;
 	}
 
-	public void setDateecheance(LocalDate dateecheance) {
+	public void setDateecheance(Date dateecheance) {
 		this.dateecheance = dateecheance;
 	}
 

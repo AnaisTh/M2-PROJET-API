@@ -1,14 +1,10 @@
 package projetapi.controller;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.text.ParseException;
 import java.util.Set;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.jayway.jsonpath.JsonPath;
 
 import projetapi.entity.Participant;
 import projetapi.entity.Tache;
@@ -149,10 +144,11 @@ public class TacheController {
 	 * @param dateFin nouvelle date de fin a ajouter
 	 * @param token token d'acces a la tache
 	 * @return
+	 * @throws ParseException 
 	 */
 	@RequestMapping(method = RequestMethod.PUT, value = "/{tacheId}", params="dateFin")
 	public ResponseEntity<?> updateTacheDateFin(@PathVariable("tacheId") String tacheId,@RequestParam("dateFin") String dateFin,
-			@RequestHeader(value="token") String token) {
+			@RequestHeader(value="token") String token) throws ParseException {
 		AutorisationAcces autorisation = tacheService.verificationAutorisationAcces(tacheId,token);
 		if(!autorisation.equals(AutorisationAcces.AUTORISE)) {
 			return new ResponseEntity<>(autorisation.getMessage(),autorisation.getHttpStatus());

@@ -5,6 +5,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -101,7 +102,7 @@ public class TacheService {
 	 */
 	public ResponseEntity<?> saveTache(@RequestBody Tache tache) {
 		tache.setId(UUID.randomUUID().toString());
-		tache.setDatecreation(LocalDate.now());
+		tache.setDatecreation(new Date());
 		tache.setTokenConnexion((UUID.randomUUID().toString() + UUID.randomUUID().toString()).substring(20, 40));
 		
 		// On vérifie que la date de fin est postérieure à la date de début
@@ -143,7 +144,7 @@ public class TacheService {
 	 * @return ResponseEntity
 	 */
 
-	public ResponseEntity<?> updateTacheDateFin(LocalDate nouvelleDate, String id){
+	public ResponseEntity<?> updateTacheDateFin(Date nouvelleDate, String id){
 		if (!tacheRepository.existsById(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -153,7 +154,7 @@ public class TacheService {
 			if (tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
 				return new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
 			}
-			else if(nouvelleDate.isBefore(tache.getDatecreation()) || nouvelleDate.isBefore(LocalDate.now())) {
+			else if(nouvelleDate.before(tache.getDatecreation()) || nouvelleDate.before(new Date())) {
 				return new ResponseEntity<>("La date est invalide. Impossible d'avoir une date de fin antérieure à la date de création ou à la date du jour",HttpStatus.BAD_REQUEST);
 			}
 			else {
@@ -217,7 +218,7 @@ public class TacheService {
 	 */
 	private Resources<Resource<Tache>> tacheToResource(Iterable<Tache> taches) {
 		Link selfLink = linkTo(methodOn(TacheController.class).getAllTaches()).withSelfRel();
-		List<Resource<Tache>> tacheRessources = new ArrayList();
+		List<Resource<Tache>> tacheRessources = new ArrayList<Resource<Tache>>();
 		taches.forEach(tache -> tacheRessources.add(tacheToResource(tache, false)));
 		return new Resources<>(tacheRessources, selfLink);
 	}

@@ -2,7 +2,8 @@ package projetapi;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import java.time.LocalDate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -34,6 +36,10 @@ public class TacheServiceApplicationTests {
 	//Composant qui permet de faire des appels rest sur une API
 	@Autowired
 	private TestRestTemplate restTemplate;
+	
+	private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+	
+	
 		
 	@Autowired
 	private TacheRepository tr;
@@ -41,13 +47,14 @@ public class TacheServiceApplicationTests {
 	@Before
 	public void setupContext() {
 		tr.deleteAll();
+		format.setLenient(false);
 	}
 	
 	
 	@Test
-	public void getOneTacheRefuse() {
-		Tache tache = new Tache("NomTache", "NomResponsable", null, LocalDate.now(),LocalDate.of(2019, 03, 2), "créé", "1234");
-		tache.setId("1");
+	public void getOneTacheRefuse() throws ParseException {
+		Tache tache = new Tache("Projet", "Anaïs",format.parse("2021-03-02"), "1234");
+		tache.setId(UUID.randomUUID().toString());
 		tr.save(tache);
 		
 		final HttpHeaders headers = new HttpHeaders();
@@ -60,10 +67,10 @@ public class TacheServiceApplicationTests {
 	}
 	
 	@Test
-	public void getOneTacheAccepte() {
+	public void getOneTacheAccepte() throws ParseException {
 
-		Tache tache = new Tache("NomTache", "NomResponsable", null, LocalDate.now(),LocalDate.of(2019, 03, 2), "créé", "1234");
-		tache.setId("1");
+		Tache tache = new Tache("Projet", "Anaïs",format.parse("2021-03-02"), "1234");
+		tache.setId(UUID.randomUUID().toString());
 		tr.save(tache);
 		
 		final HttpHeaders headers = new HttpHeaders();
@@ -74,8 +81,8 @@ public class TacheServiceApplicationTests {
 	    ResponseEntity<String> response = restTemplate.exchange("/taches/"+tache.getId(), HttpMethod.GET,entity, String.class);
 		
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).contains("NomResponsable");
-		assertThat(response.getBody()).contains("2019-03-02");
+		assertThat(response.getBody()).contains("Anaïs");
+		assertThat(response.getBody()).contains("2021-03-01");
 	}
 	
 	@Test
@@ -90,15 +97,15 @@ public class TacheServiceApplicationTests {
 	}
 	
 	@Test
-	public void getAllTache() {
-		Tache tache1 = new Tache("Nom1", "Responsable1", null, LocalDate.now(),LocalDate.of(2019, 03, 2), "créé", "1234");
-		tache1.setId("1");
+	public void getAllTache() throws ParseException {
+		Tache tache1 = new Tache("Projet", "Anaïs",format.parse("2021-03-02"), "1234");
+		tache1.setId(UUID.randomUUID().toString());
 		Set<String> set1 = new HashSet<String>();set1.add("1");set1.add("2");
 		tache1.setParticipantsId(set1);
 		tr.save(tache1);
 		
-		Tache tache2 = new Tache("Nom2", "Responsable2", null, LocalDate.now(),LocalDate.of(2019, 03, 2), "créé", "5678");
-		tache2.setId("2");
+		Tache tache2 = new Tache("API", "Claire",format.parse("2021-03-02"), "5678");
+		tache2.setId(UUID.randomUUID().toString());
 		Set<String> set2 = new HashSet<String>();set2.add("3");set2.add("4");
 		tache2.setParticipantsId(set2);
 		tr.save(tache2);
@@ -106,8 +113,7 @@ public class TacheServiceApplicationTests {
 		ResponseEntity<String> response = restTemplate.getForEntity("/taches", String.class);
 		
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).contains("Responsable1");
-		assertThat(response.getBody()).contains("2019-03-02");
+		assertThat(response.getBody()).contains("Claire");
 		
 		List<String> liste = JsonPath.read(response.getBody(),
                 "$..taches..nomtache");
@@ -118,11 +124,11 @@ public class TacheServiceApplicationTests {
 		
 	}
 
-	/* NON FONCTIONNEL A CAUSE DU FORMAT DES DATES. MODIFICATION DE FORMAT NON REUSSIE
+	
 	@Test
     public void postAPI() throws Exception {
-		Tache tache1 = new Tache("Nom1", "Responsable1", null, LocalDate.now(),LocalDate.of(2019, 03, 2), "créé", "1234");
-		tache1.setId("1");
+		Tache tache1 = new Tache("Projet", "Anaïs",format.parse("2021-03-02"), "1234");
+		tache1.setId(UUID.randomUUID().toString());
 		Set<String> set1 = new HashSet<String>();set1.add("1");set1.add("2");
 		tache1.setParticipantsId(set1);
 
@@ -130,19 +136,15 @@ public class TacheServiceApplicationTests {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(tache1.toJsonString(), headers);
-     	System.out.println(entity);
+
         ResponseEntity<?> response= restTemplate.postForEntity("/taches", entity, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-
-        URI location = response.getHeaders().getLocation();
-        response = restTemplate.getForEntity(location, String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
-	*/
+	
 	
 	@Test
-	public void DeleteOneTacheRefuse() {
-		Tache tache = new Tache("NomTache", "NomResponsable", null, LocalDate.now(),LocalDate.of(2019, 03, 2), "créé", "1234");
+	public void DeleteOneTacheRefuse() throws ParseException {
+		Tache tache = new Tache("Projet", "Anaïs",format.parse("2019-03-02"), "1234");
 		tache.setId(UUID.randomUUID().toString());
 		tr.save(tache);
 		
@@ -155,10 +157,10 @@ public class TacheServiceApplicationTests {
 	}
 		
 	@Test
-	public void deleteOneTacheAccepte() {
+	public void deleteOneTacheAccepte() throws ParseException {
 
-		Tache tache = new Tache("NomTache", "NomResponsable", null, LocalDate.now(),LocalDate.of(2019, 03, 2), "créé", "1234");
-		tache.setId("1");
+		Tache tache = new Tache("Projet", "Anaïs",format.parse("2019-03-02"), "1234");
+		tache.setId(UUID.randomUUID().toString());
 		tr.save(tache);
 		
 		final HttpHeaders headers = new HttpHeaders();

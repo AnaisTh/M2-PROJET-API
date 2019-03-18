@@ -3,17 +3,15 @@ package projetapi.utility;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 
 public class DateUtilitaire {
-
+	 static DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 	
 	
 public static boolean verifDate(String date) {
-    DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+   
     format.setLenient(false); // Le format doit être strictement le même
     try {
         format.parse(date);
@@ -24,9 +22,8 @@ public static boolean verifDate(String date) {
 
 }
 
-public static LocalDate convertDate(String date) {
-	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-	return LocalDate.parse(date, formatter);
+public static Date convertDate(String date) throws ParseException {
+	return format.parse(date);
 }
 
 
