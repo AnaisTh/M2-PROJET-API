@@ -58,14 +58,17 @@ public class ParticipantController {
 	                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
     
-    // GET all participants of tache
+    
     @GetMapping(value = "tache/{tacheId}")
     public ResponseEntity<?> getParticipantsByTache(@PathVariable("tacheId") String tacheId){
     	Iterable<Participant> allParticipants = participantRepository.findByTacheid(tacheId);
     	return new ResponseEntity<>(participantToResource(allParticipants), HttpStatus.OK);
     }
     
+    
+    
     //GET one participant of on tache
+    
     @GetMapping(value = "/{participantId}/tache/{tacheId}")
     public ResponseEntity<?> getParticipantByTacheAndId(@PathVariable("tacheId") String tacheId, @PathVariable("participantId") String participantId) {
     	return Optional.ofNullable(participantRepository.findByTacheidAndId(tacheId, participantId))

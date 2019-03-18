@@ -3,9 +3,7 @@ package projetapi;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.Before;

@@ -1,4 +1,6 @@
-INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('1','nomA','prenomA','1')
-INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('2','nomB','prenomB','1')
-INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('3','nomC','prenomC','2')
-
+INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('1','Mansuy','Claire','2')
+INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('2','Thiriot','Anais','1')
+INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('3','Fernandes','Charlotte','2')
+INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('4','Lamblin','Nicolas','3')
+INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('5','Cante','Benoit','3')
+INSERT INTO participant(id,nom,prenom,tacheid) VALUES ('6','Gaziorowky','Loic','3')
