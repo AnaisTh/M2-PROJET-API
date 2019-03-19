@@ -37,11 +37,15 @@ public class Participant {
 	 * Constructeur vide du participant, necessaire pour JPA
 	 */
 	public Participant() {
+		
 	}
 
-	public Participant(String nom, String prenom, String tacheid) {
+	public Participant(String nom, String prenom) {
 		this.nom = nom;
 		this.prenom = prenom;
+	}
+	public Participant(String nom, String prenom, String tacheid) {
+		this(nom,prenom);
 		this.tacheid = tacheid;
 	}
 
@@ -81,9 +85,13 @@ public class Participant {
 		this.id = id;
 	}
 	
+	/*
 	public static Participant StringToParticipant(String json) throws JsonParseException, JsonMappingException, IOException {
+		System.out.println(":!!!!!!!");
+		System.out.println(json);
 		ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(json, Participant.class);
 	}
+	*/
 
 }

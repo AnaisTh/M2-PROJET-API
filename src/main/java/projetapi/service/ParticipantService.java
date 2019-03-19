@@ -66,8 +66,9 @@ public class ParticipantService {
 		HttpHeaders responseHeader = new HttpHeaders();
 		responseHeader.setLocation(linkTo(TacheController.class).slash(tacheId).slash("participants").slash(saved.getId()).toUri());
 		
-		return new ResponseEntity<>(tacheId, responseHeader, HttpStatus.CREATED);
+		return new ResponseEntity<>(saved.getId(), responseHeader, HttpStatus.CREATED);
 	}
+	
 
 	public ResponseEntity<?> deleteParticipantTache(String participantId) {
 		return participantServiceProxy.deleteParticipant(participantId);

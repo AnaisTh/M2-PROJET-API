@@ -3,6 +3,7 @@ package projetapi.controller;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
@@ -217,13 +218,16 @@ public class TacheController {
 		}
 		else {
 			ResponseEntity<?> response = participantService.newParticipantTache(tacheId, participant);
-			Participant saved = Participant.StringToParticipant(response.getBody().toString());
-			tacheService.ajoutParticipantTache(tacheId, saved.getId());
+			String idParticipant = response.getBody().toString();
+			System.out.println("!!!!");
+			System.out.println(idParticipant);
+			//Participant saved = Participant.StringToParticipant(response.getBody().toString());
+			//tacheService.ajoutParticipantTache(tacheId, saved.getId());
+			tacheService.ajoutParticipantTache(tacheId, idParticipant);
 			return new ResponseEntity<>( HttpStatus.CREATED);
 		}
-		
-		
 	}
+	
 
 	
 	/**
