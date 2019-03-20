@@ -9,9 +9,8 @@ import java.util.Set;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.constraints.Future;
-
-import org.springframework.format.annotation.DateTimeFormat;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,12 +42,14 @@ public class Tache {
 	/**
 	 * Date de creation de la tache
 	 */
-	@JsonFormat(pattern="yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", locale = "pt-BR", timezone = "IST")
 	private Date datecreation;
 	/**
 	 * Date d'echeance de la tache
 	 */
-	@JsonFormat(pattern="yyyy-MM-dd") @Future
+	@Temporal(TemporalType.DATE)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", locale = "pt-BR", timezone = "IST")
 	private Date dateecheance;
 	/**
 	 * Etat courant de la tache

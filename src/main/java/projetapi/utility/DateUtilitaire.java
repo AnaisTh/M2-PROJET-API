@@ -7,7 +7,7 @@ import java.util.Date;
 
 
 public class DateUtilitaire {
-	 static DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+	 static DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 	
 	
 public static boolean verifDate(String date) {
@@ -23,6 +23,7 @@ public static boolean verifDate(String date) {
 }
 
 public static Date convertDate(String date) throws ParseException {
+	format.setLenient(false);
 	return format.parse(date);
 }
 

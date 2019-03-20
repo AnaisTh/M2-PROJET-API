@@ -5,6 +5,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -80,7 +81,6 @@ public class TacheService {
 		List<Tache> allTaches = tacheRepository.findByNomresponsableAndEtat(responsable, etat);
 		return new ResponseEntity<>(tacheToResource(allTaches), HttpStatus.OK);
 	}
-	
 
 	/**
 	 * Requete d'acces a une tache
@@ -103,6 +103,7 @@ public class TacheService {
 		tache.setId(UUID.randomUUID().toString());
 		tache.setDatecreation(new Date());
 		tache.setTokenConnexion((UUID.randomUUID().toString() + UUID.randomUUID().toString()).substring(20, 40));
+		tache.setParticipantsId(new HashSet<String>());
 		
 		// On vérifie que la date de fin est postérieure à la date de début
 		if (tache.getDatecreation().compareTo(tache.getDateecheance()) >= 0) { 
@@ -114,25 +115,37 @@ public class TacheService {
 			Tache saved = tacheRepository.save(tache);
 			HttpHeaders responseHeaders = new HttpHeaders();
 			responseHeaders.setLocation(linkTo(TacheController.class).slash(saved.getId()).toUri());
-			return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+			return new ResponseEntity<>(saved, responseHeaders, HttpStatus.CREATED);
 		}
 	}
 
 	/**
-	 * Requete de cloture d'une tache du service
+	 * Requete de cloture d'une tache du service si elle est en cours ou créée, et de l'archiveée si elle est cloturée.
 	 * @param id identifiant de la tache a cloturer
 	 * @return ResponseEntity
 	 */
 	public ResponseEntity<?> deleteTache(@PathVariable("tacheId") String id) {
 		Optional<Tache> tacheOptional = tacheRepository.findById(id);
 		if (tacheOptional.isPresent()) {
-			// tacheRepository.delete(tache.get()); 
-			//On ne la delete pas vraiment mais uniquement un changement d'état
+			// tacheRepository.delete(tache.get());  //On ne la delete pas vraiment mais uniquement un changement d'état
 			Tache tache = tacheOptional.get();
-			tache.setEtat(EtatTache.ACHEVEE.getEtat()); 
-			tacheRepository.save(tache);
+			if(tache.getEtat().equals(EtatTache.CREEE.getEtat())|| tache.getEtat().equals(EtatTache.ENCOURS.getEtat())) {
+				tache.setEtat(EtatTache.ACHEVEE.getEtat()); 
+				tacheRepository.save(tache);
+				return new ResponseEntity<>(tache,HttpStatus.OK); // OK et non pas NO_CONTENT comme un delete
+			}
+			else if(tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
+				tache.setEtat(EtatTache.ARCHIVEE.getEtat()); 
+				tacheRepository.save(tache);
+				return new ResponseEntity<>(tache,HttpStatus.OK); // OK et non pas NO_CONTENT comme un delete
+			}
+			else {
+				return new ResponseEntity<>("Impossible d'archivée la tâche. Celle-ci est deja archivée",HttpStatus.BAD_REQUEST); // OK et non pas NO_CONTENT comme un delete
+			}
+			
 		}
-		return new ResponseEntity<>(HttpStatus.OK); // OK et non pas NO_CONTENT comme un delete
+		return new ResponseEntity<>("Aucune tâche à achever",HttpStatus.NO_CONTENT); // OK et non pas NO_CONTENT comme un delete
+		
 	}
 
 	
@@ -150,8 +163,8 @@ public class TacheService {
 		else {
 			Tache tache = tacheRepository.getOne(id);
 			
-			if (tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
-				return new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
+			if(tache.getEtat().equals(EtatTache.ACHEVEE.getEtat()) || tache.getEtat().equals(EtatTache.ARCHIVEE.getEtat())) {
+				return new ResponseEntity<>("Impossible de modifier une tâche achevée ou archivée", HttpStatus.BAD_REQUEST);
 			}
 			else if(nouvelleDate.before(tache.getDatecreation()) || nouvelleDate.before(new Date())) {
 				return new ResponseEntity<>("La date est invalide. Impossible d'avoir une date de "
@@ -159,8 +172,8 @@ public class TacheService {
 			}
 			else {
 				tache.setDateecheance(nouvelleDate);
-				tacheRepository.save(tache);
-				return new ResponseEntity<>(HttpStatus.OK);
+				tacheRepository.save(tache).getDateecheance();
+				return new ResponseEntity<>(tache,HttpStatus.OK);
 			}
 			
 		}

@@ -3,7 +3,6 @@ package projetapi.controller;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
@@ -64,7 +63,6 @@ public class TacheController {
 		this.participantService = new ParticipantService(participantServiceProxy);
 		this.tacheService = new TacheService(tacheRepository);
 	}
-
 
 	/**
 	 * Requete qui retourne l'ensemble des taches
@@ -157,8 +155,10 @@ public class TacheController {
 			return new ResponseEntity<>(autorisation.getMessage(),autorisation.getHttpStatus());
 		}
 		if(!DateUtilitaire.verifDate(dateFin)) {
-			return new ResponseEntity<>("Format de date invalide. Celui-ci doit être dd-MM-yyyy",HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>("Format de date invalide. Celui-ci doit être yyyy-MM-dd",HttpStatus.BAD_REQUEST);
 		}
+		System.out.println(dateFin);
+		System.out.println(DateUtilitaire.convertDate(dateFin));
 		return tacheService.updateTacheDateFin(DateUtilitaire.convertDate(dateFin), tacheId);
 	}
 	
@@ -213,8 +213,8 @@ public class TacheController {
 		}
 		
 		Tache tache = tacheService.tacheRepository.getOne(tacheId);
-		if(tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
-			return new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
+		if(tache.getEtat().equals(EtatTache.ACHEVEE.getEtat()) || tache.getEtat().equals(EtatTache.ARCHIVEE.getEtat())) {
+			return new ResponseEntity<>("Impossible de modifier une tâche achevée ou archivée", HttpStatus.BAD_REQUEST);
 		}
 		else {
 			ResponseEntity<?> response = participantService.newParticipantTache(tacheId, participant);
@@ -250,8 +250,8 @@ public class TacheController {
 
 		Tache tache = tacheService.tacheRepository.getOne(tacheId);
 		// On s'assure tout d'abord que la tâche ne soit pas achevée
-		if (tache.getEtat().equals(EtatTache.ACHEVEE.getEtat())) {
-			response = new ResponseEntity<>("Impossible de modifier une tâche achevée", HttpStatus.BAD_REQUEST);
+		if(tache.getEtat().equals(EtatTache.ACHEVEE.getEtat()) || tache.getEtat().equals(EtatTache.ARCHIVEE.getEtat())) {
+			response = new ResponseEntity<>("Impossible de modifier une tâche achevée ou archivée", HttpStatus.BAD_REQUEST);
 		} else {
 			// On vérifie ensuite le nombre de participant
 			Set<String> idParticipants = tache.getParticipantsId();
