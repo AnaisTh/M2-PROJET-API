@@ -24,13 +24,13 @@ Dans le repertoire PROJET-API-Participant
 Pour lancer le programme, lancer les 3 jar dans l'ordre suivant :
 
 Dans le repertoire PROJET-API-Eureka
-java -jar target/projet-api-eureka-1.0.jar
+> java -jar target/projet-api-eureka-1.0.jar
 
 Dans le repertoire PROJET-API-Tache
 > java -jar target/projet-api-tache-1.0.jar
 
 Dans le repertoire PROJET-API-Participant
-java -jar target/projet-api-participant-1.0.jar
+> java -jar target/projet-api-participant-1.0.jar
 
 
 ### Acces ###
